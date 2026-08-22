@@ -85,13 +85,17 @@ export function useCustomerFilters() {
       const searchStr = current.toString();
       const currentStr = searchParams.toString();
 
-      // Guard: Do not trigger router.replace if parameters haven't changed!
-      if (searchStr === currentStr) {
+      // Guard: Do not trigger navigation if parameters haven't changed and already on /customers
+      if (searchStr === currentStr && pathname === '/customers') {
         return;
       }
 
       const queryStr = searchStr ? `?${searchStr}` : '';
-      router.replace(`${pathname}${queryStr}`, { scroll: false });
+      if (pathname !== '/customers') {
+        router.push(`/customers${queryStr}`);
+      } else {
+        router.replace(`/customers${queryStr}`, { scroll: false });
+      }
     },
     [searchParams, pathname, router]
   );

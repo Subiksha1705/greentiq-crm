@@ -13,11 +13,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { CustomerFilterState, CustomerStatus, RiskLevel } from '@/types/customer';
-import { SlidersHorizontal, RotateCcw, Check, Calendar as CalendarIcon } from 'lucide-react';
+import { SlidersHorizontal, RotateCcw, Check, Calendar as CalendarIcon, Bookmark, BookmarkPlus } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DatePicker } from '@/components/ui/date-picker';
 import { PhoneInput } from '@/components/ui/phone-input';
 import { format } from 'date-fns';
+import { toast } from 'sonner';
 
 interface CustomerFiltersProps {
   isOpen: boolean;
@@ -26,6 +27,8 @@ interface CustomerFiltersProps {
   onApplyFilters: (filters: CustomerFilterState) => void;
   onClearAll: () => void;
   companyOptions?: string[];
+  mode?: 'filter' | 'save-view';
+  onSaveView?: (name: string, filters: CustomerFilterState) => void;
 }
 
 export function CustomerFilters({
@@ -35,11 +38,17 @@ export function CustomerFilters({
   onApplyFilters,
   onClearAll,
   companyOptions = [],
+  mode = 'filter',
+  onSaveView,
 }: CustomerFiltersProps) {
   // Local DRAFT filter state initialized from committed filters when drawer opens
   const [prevCommittedFilters, setPrevCommittedFilters] = useState<CustomerFilterState>(committedFilters);
   const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [draft, setDraft] = useState<CustomerFilterState>(committedFilters);
+
+  // View name state for save-view mode
+  const [viewName, setViewName] = useState('');
+  const [viewNameError, setViewNameError] = useState('');
 
   // Sync draft state during render whenever drawer opens or committedFilters change
   if (isOpen !== prevIsOpen || committedFilters !== prevCommittedFilters) {
@@ -47,6 +56,8 @@ export function CustomerFilters({
     setPrevCommittedFilters(committedFilters);
     if (isOpen) {
       setDraft(committedFilters);
+      setViewName('');
+      setViewNameError('');
     }
   }
 
@@ -83,6 +94,32 @@ export function CustomerFilters({
     onOpenChange(false);
   };
 
+  // Save View Handler
+  const handleSaveViewSubmit = () => {
+    const trimmed = viewName.trim();
+    if (!trimmed) {
+      setViewNameError('Please enter a view name.');
+      return;
+    }
+    if (trimmed.length > 40) {
+      setViewNameError('View name cannot exceed 40 characters.');
+      return;
+    }
+
+    try {
+      if (onSaveView) {
+        onSaveView(trimmed, draft);
+      }
+      onApplyFilters(draft);
+      toast.success(`Saved view "${trimmed}" created and applied!`);
+      onOpenChange(false);
+      setViewName('');
+      setViewNameError('');
+    } catch (err) {
+      setViewNameError(err instanceof Error ? err.message : 'Failed to save view.');
+    }
+  };
+
   // Clear All
   const handleClearAll = () => {
     setDraft({});
@@ -90,24 +127,59 @@ export function CustomerFilters({
     onOpenChange(false);
   };
 
+  const isSaveViewMode = mode === 'save-view';
+
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md flex flex-col h-full bg-[var(--card)] text-[var(--foreground)]">
         {/* Drawer Header */}
         <SheetHeader className="p-6 border-b border-[var(--border-default)]">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-5 w-5 text-[var(--primary)]" />
+            {isSaveViewMode ? (
+              <BookmarkPlus className="h-5 w-5 text-[var(--primary)]" />
+            ) : (
+              <SlidersHorizontal className="h-5 w-5 text-[var(--primary)]" />
+            )}
             <SheetTitle className="text-[18px] font-semibold leading-[1.3] text-[var(--text-primary)]">
-              Filter Customers
+              {isSaveViewMode ? 'Create Saved View' : 'Filter Customers'}
             </SheetTitle>
           </div>
           <SheetDescription className="text-[12px] font-medium leading-[1.4] text-[var(--text-tertiary)]">
-            Refine customer directory by status, risk levels, company, or date ranges.
+            {isSaveViewMode
+              ? 'Configure filter criteria and give this view a name to save it to your sidebar.'
+              : 'Refine customer directory by status, risk levels, company, or date ranges.'}
           </SheetDescription>
         </SheetHeader>
 
         {/* Form Body - Scrollable */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
+          {/* View Name Section (in save-view mode) */}
+          {isSaveViewMode && (
+            <>
+              <div className="space-y-1.5 p-3.5 bg-[var(--accent)] border border-[var(--accent-green-border)] rounded-[8px]">
+                <label className="text-[12px] font-semibold text-[var(--text-primary)] block">
+                  View Name <span className="text-destructive">*</span>
+                </label>
+                <Input
+                  type="text"
+                  placeholder="e.g. High Value Prospects"
+                  value={viewName}
+                  onChange={(e) => {
+                    setViewName(e.target.value);
+                    setViewNameError('');
+                  }}
+                  className="h-9 text-[14px] bg-[var(--card)] border-[var(--border-default)] rounded-[6px] focus-visible:ring-[var(--primary)]"
+                  autoFocus
+                />
+                {viewNameError && (
+                  <span className="text-[12px] font-medium text-destructive block">
+                    {viewNameError}
+                  </span>
+                )}
+              </div>
+              <hr className="border-[var(--border-default)]" />
+            </>
+          )}
           {/* Status Section */}
           <div className="space-y-3">
             <label className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-tertiary)]">
@@ -300,14 +372,26 @@ export function CustomerFilters({
               Cancel
             </Button>
 
-            <Button
-              type="button"
-              size="sm"
-              onClick={handleApply}
-              className="text-[14px] font-semibold bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-active)] text-white rounded-[6px] px-4 py-2 shadow-xs"
-            >
-              Apply Filters
-            </Button>
+            {isSaveViewMode ? (
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleSaveViewSubmit}
+                className="text-[14px] font-semibold bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-active)] text-white rounded-[6px] px-4 py-2 shadow-xs gap-1.5"
+              >
+                <Bookmark className="h-4 w-4" />
+                <span>Save View</span>
+              </Button>
+            ) : (
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleApply}
+                className="text-[14px] font-semibold bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-active)] text-white rounded-[6px] px-4 py-2 shadow-xs"
+              >
+                Apply Filters
+              </Button>
+            )}
           </div>
         </SheetFooter>
       </SheetContent>

@@ -18,6 +18,8 @@ import { DatePicker } from '@/components/ui/date-picker';
 import { Button } from '@/components/ui/button';
 import { LoadingState } from '@/components/common/loading-state';
 import { ErrorState } from '@/components/common/error-state';
+import { ConfirmDialog } from '@/components/common/confirm-dialog';
+import { toast } from 'sonner';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -83,6 +85,7 @@ export function CustomerDetails({
   // Interaction Modal state (Add / Edit)
   const [interactionModalOpen, setInteractionModalOpen] = useState(false);
   const [editingInteractionId, setEditingInteractionId] = useState<string | null>(null);
+  const [deletingInteractionId, setDeletingInteractionId] = useState<string | null>(null);
   const [interactionType, setInteractionType] = useState<InteractionType>('call');
   const [interactionDate, setInteractionDate] = useState<Date>(new Date());
   const [interactionSummary, setInteractionSummary] = useState('');
@@ -204,16 +207,23 @@ export function CustomerDetails({
     setInteractionModalOpen(false);
   };
 
-  const handleDeleteInteraction = async (interactionId: string) => {
-    if (!customerId || !customer) return;
-    const nextInteractions = (customer.interactions || []).filter((item) => item.id !== interactionId);
+  const handleConfirmDeleteInteraction = async () => {
+    if (!customerId || !customer || !deletingInteractionId) return;
+    const nextInteractions = (customer.interactions || []).filter((item) => item.id !== deletingInteractionId);
 
-    await updateCustomerMutation.mutateAsync({
-      id: customerId,
-      input: {
-        interactions: nextInteractions,
-      },
-    });
+    try {
+      await updateCustomerMutation.mutateAsync({
+        id: customerId,
+        input: {
+          interactions: nextInteractions,
+        },
+      });
+      toast.success('Interaction deleted');
+    } catch {
+      toast.error('Failed to delete interaction');
+    } finally {
+      setDeletingInteractionId(null);
+    }
   };
 
   const getInteractionIcon = (type: string) => {
@@ -604,7 +614,7 @@ export function CustomerDetails({
                                     </button>
                                     <button
                                       type="button"
-                                      onClick={() => handleDeleteInteraction(interaction.id)}
+                                      onClick={() => setDeletingInteractionId(interaction.id)}
                                       className="p-1 text-[var(--text-tertiary)] hover:text-[var(--destructive)] rounded hover:bg-[var(--accent-red-bg)]"
                                       title="Delete interaction"
                                     >
@@ -755,6 +765,18 @@ export function CustomerDetails({
           </form>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Interaction Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deletingInteractionId)}
+        onOpenChange={(open) => !open && setDeletingInteractionId(null)}
+        title="Delete Interaction Log"
+        description="Are you sure you want to delete this interaction log? This action cannot be undone."
+        confirmLabel="Delete Interaction"
+        variant="destructive"
+        isPending={updateCustomerMutation.isPending}
+        onConfirm={handleConfirmDeleteInteraction}
+      />
     </>
   );
 }

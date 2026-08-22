@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCustomerFilters } from '@/hooks/use-customer-filters';
+import { useSavedViews } from '@/hooks/use-saved-views';
 import { useCustomers } from '@/hooks/use-customers';
 import { useCustomer } from '@/hooks/use-customer';
 import { useCreateCustomer } from '@/hooks/use-create-customer';
@@ -57,6 +58,8 @@ export function CustomerWorkspace() {
     activeFilterCount,
     activeFilterChips,
   } = useCustomerFilters();
+
+  const { saveCustomView } = useSavedViews();
 
   const { data, isLoading, isError, refetch, isFetching } = useCustomers(params);
   const { data: filterOptionsData } = useCustomerFilterOptions();
@@ -340,6 +343,7 @@ export function CustomerWorkspace() {
         onApplyFilters={setFilters}
         onClearAll={clearFilters}
         companyOptions={companyOptions}
+        onSaveView={saveCustomView}
       />
 
       {/* Customer Details Drawer */}

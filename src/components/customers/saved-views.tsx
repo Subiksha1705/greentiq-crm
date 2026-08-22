@@ -3,6 +3,10 @@
 import React, { useState } from 'react';
 import { useSavedViews, SavedView } from '@/hooks/use-saved-views';
 import { useCustomerFilters } from '@/hooks/use-customer-filters';
+import { useCustomerFilterOptions } from '@/hooks/use-customer-filter-options';
+import { CustomerFilters } from './customer-filters';
+import { ConfirmDialog } from '@/components/common/confirm-dialog';
+import { toast } from 'sonner';
 import {
   DndContext,
   closestCenter,
@@ -21,9 +25,6 @@ import {
 import { CSS } from '@dnd-kit/utilities';
 import { GripVertical, Plus, Trash2, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Button } from '@/components/ui/button';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogTrigger } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 
 interface SortableItemProps {
   view: SavedView;
@@ -93,12 +94,15 @@ function SortableItem({ view, isSelected, onSelect, onDelete }: SortableItemProp
 }
 
 export function SavedViewsList() {
-  const { views, selectedViewId, saveCurrentAsView, deleteView, reorderViews } = useSavedViews();
-  const { setFilters } = useCustomerFilters();
+  const { views, selectedViewId, saveCustomView, deleteView, reorderViews } = useSavedViews();
+  const { params: currentFilters, setFilters, clearFilters } = useCustomerFilters();
+  const { data: filterOptionsData } = useCustomerFilterOptions();
+  const companyOptions = filterOptionsData?.companies ?? [];
   
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [newViewName, setNewViewName] = useState('');
-  const [error, setError] = useState('');
+  const [isFilterSheetOpen, setIsFilterSheetOpen] = useState(false);
+  const [deletingViewId, setDeletingViewId] = useState<string | null>(null);
+
+  const deletingView = views.find((v) => v.id === deletingViewId);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -122,20 +126,16 @@ export function SavedViewsList() {
 
   const handleSelectView = (view: SavedView) => {
     const payload = typeof view.filters === 'function' ? view.filters() : view.filters;
-    // Set filters clears pagination automatically due to Phase 4
+    // Set filters applies filters and navigates to /customers automatically if on dashboard
     setFilters(payload);
   };
 
-  const handleSaveView = (e: React.FormEvent) => {
-    e.preventDefault();
-    setError('');
-    try {
-      saveCurrentAsView(newViewName);
-      setIsDialogOpen(false);
-      setNewViewName('');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to save view');
-    }
+  const handleConfirmDelete = () => {
+    if (!deletingViewId) return;
+    const viewName = deletingView?.name || 'view';
+    deleteView(deletingViewId);
+    toast.success(`Saved view "${viewName}" deleted`);
+    setDeletingViewId(null);
   };
 
   return (
@@ -144,50 +144,38 @@ export function SavedViewsList() {
         <h3 className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-quaternary)]">
           Saved Views
         </h3>
-        <Dialog open={isDialogOpen} onOpenChange={(open: boolean) => {
-          setIsDialogOpen(open);
-          if (!open) {
-            setNewViewName('');
-            setError('');
-          }
-        }}>
-          <DialogTrigger asChild>
-            <button
-              className="text-[var(--primary)] hover:bg-[var(--accent)] p-1 rounded transition-colors"
-              aria-label="Save current view"
-              title="Save current filters as view"
-            >
-              <Plus className="h-4 w-4" />
-            </button>
-          </DialogTrigger>
-          <DialogContent className="sm:max-w-[425px]">
-            <form onSubmit={handleSaveView}>
-              <DialogHeader>
-                <DialogTitle>Save Current View</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="flex flex-col gap-2">
-                  <Input
-                    id="name"
-                    value={newViewName}
-                    onChange={(e) => {
-                      setNewViewName(e.target.value);
-                      setError('');
-                    }}
-                    placeholder="E.g., High Value Prospects"
-                    className="col-span-3"
-                    autoFocus
-                  />
-                  {error && <span className="text-[12px] text-destructive">{error}</span>}
-                </div>
-              </div>
-              <DialogFooter>
-                <Button type="submit">Save View</Button>
-              </DialogFooter>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <button
+          onClick={() => setIsFilterSheetOpen(true)}
+          className="text-[var(--primary)] hover:bg-[var(--accent)] p-1 rounded transition-colors"
+          aria-label="Create and save view"
+          title="Create a new saved view"
+        >
+          <Plus className="h-4 w-4" />
+        </button>
       </div>
+
+      {/* Filter Side Sheet in Save-View Mode */}
+      <CustomerFilters
+        isOpen={isFilterSheetOpen}
+        onOpenChange={setIsFilterSheetOpen}
+        committedFilters={currentFilters}
+        onApplyFilters={setFilters}
+        onClearAll={clearFilters}
+        companyOptions={companyOptions}
+        mode="save-view"
+        onSaveView={saveCustomView}
+      />
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deletingViewId)}
+        onOpenChange={(open) => !open && setDeletingViewId(null)}
+        title="Delete Saved View"
+        description={`Are you sure you want to delete the saved view "${deletingView?.name}"? This action cannot be undone.`}
+        confirmLabel="Delete View"
+        variant="destructive"
+        onConfirm={handleConfirmDelete}
+      />
 
       <div className="px-2 space-y-0.5 pb-4">
         <DndContext
@@ -205,7 +193,7 @@ export function SavedViewsList() {
                 view={view}
                 isSelected={view.id === selectedViewId}
                 onSelect={handleSelectView}
-                onDelete={deleteView}
+                onDelete={(id) => setDeletingViewId(id)}
               />
             ))}
           </SortableContext>

@@ -1,6 +1,4 @@
-'use client';
-
-import { useState, useCallback, useMemo, useEffect } from 'react';
+import { useCallback, useMemo, useSyncExternalStore } from 'react';
 import { CustomerFilterState } from '@/types/customer';
 import { useCustomerFilters } from './use-customer-filters';
 
@@ -52,85 +50,134 @@ const PREDEFINED_VIEWS: SavedView[] = [
   },
 ];
 
-// Module-level state so it persists across hooks if used in multiple places
-let globalViews = [...PREDEFINED_VIEWS];
+const STORAGE_KEY = 'greentiq_saved_views_custom';
+
+export function sanitizeFilters(filters: CustomerFilterState): CustomerFilterState {
+  return {
+    status: filters.status && filters.status.length > 0 ? filters.status : undefined,
+    company: filters.company && filters.company.length > 0 ? filters.company : undefined,
+    risk: filters.risk && filters.risk.length > 0 ? filters.risk : undefined,
+    lastContactFrom: filters.lastContactFrom || undefined,
+    lastContactTo: filters.lastContactTo || undefined,
+    email: filters.email?.trim() || undefined,
+    phone: filters.phone?.trim() || undefined,
+  };
+}
+
+export function areFiltersEqual(a: CustomerFilterState, b: CustomerFilterState): boolean {
+  const cleanA = sanitizeFilters(a);
+  const cleanB = sanitizeFilters(b);
+
+  const keys: (keyof CustomerFilterState)[] = [
+    'status', 'company', 'risk', 'lastContactFrom', 'lastContactTo', 'email', 'phone'
+  ];
+
+  for (const key of keys) {
+    const valA = cleanA[key];
+    const valB = cleanB[key];
+
+    if (Array.isArray(valA) && Array.isArray(valB)) {
+      if (valA.length !== valB.length) return false;
+      const sortedA = [...valA].sort();
+      const sortedB = [...valB].sort();
+      if (!sortedA.every((v, i) => v === sortedB[i])) return false;
+    } else if (valA !== valB) {
+      if (!(valA === undefined && valB === undefined)) {
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+function loadInitialViews(): SavedView[] {
+  if (typeof window === 'undefined') return [...PREDEFINED_VIEWS];
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      const customViews: SavedView[] = JSON.parse(stored);
+      return [...PREDEFINED_VIEWS, ...customViews];
+    }
+  } catch {
+    // Ignore JSON parse errors
+  }
+  return [...PREDEFINED_VIEWS];
+}
+
+function persistCustomViews(allViews: SavedView[]) {
+  if (typeof window === 'undefined') return;
+  try {
+    const customViews = allViews.filter((v) => !v.isPredefined);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(customViews));
+  } catch {
+    // Ignore localStorage errors
+  }
+}
+
+// Module-level external store
+let globalViews = typeof window !== 'undefined' ? loadInitialViews() : [...PREDEFINED_VIEWS];
 let listeners: (() => void)[] = [];
 
+function subscribe(listener: () => void) {
+  listeners.push(listener);
+  return () => {
+    listeners = listeners.filter((l) => l !== listener);
+  };
+}
+
+function getSnapshot() {
+  return globalViews;
+}
+
+function getServerSnapshot() {
+  return PREDEFINED_VIEWS;
+}
+
 function notifyListeners() {
+  persistCustomViews(globalViews);
   listeners.forEach((l) => l());
 }
 
 export function useSavedViews() {
   const { params: currentFilters } = useCustomerFilters();
-  const [views, setViews] = useState<SavedView[]>(globalViews);
-
-  useEffect(() => {
-    const listener = () => setViews([...globalViews]);
-    listeners.push(listener);
-    return () => {
-      listeners = listeners.filter((l) => l !== listener);
-    };
-  }, []);
+  const views = useSyncExternalStore(subscribe, getSnapshot, getServerSnapshot);
 
   // Determine active view by checking exact payload match
   const selectedViewId = useMemo(() => {
-    const isExactMatch = (v: SavedView) => {
+    const match = views.find((v) => {
       const payload = typeof v.filters === 'function' ? v.filters() : v.filters;
-      const relevantKeys: (keyof CustomerFilterState)[] = [
-        'status', 'company', 'risk', 'lastContactFrom', 'lastContactTo', 'email', 'phone'
-      ];
-      
-      for (const key of relevantKeys) {
-        const payloadVal = payload[key];
-        const currentVal = currentFilters[key];
-
-        if (Array.isArray(payloadVal) && Array.isArray(currentVal)) {
-          if (payloadVal.length !== currentVal.length) return false;
-          const sortedP = [...payloadVal].sort();
-          const sortedC = [...currentVal].sort();
-          if (!sortedP.every((val, i) => val === sortedC[i])) return false;
-        } else if (payloadVal !== currentVal) {
-          // If both are undefined, it's fine. If one is undefined and other is not, it fails.
-          if (!(payloadVal === undefined && currentVal === undefined)) {
-            return false;
-          }
-        }
-      }
-      return true;
-    };
-
-    const match = views.find(isExactMatch);
+      return areFiltersEqual(payload, currentFilters);
+    });
     return match?.id || null;
   }, [views, currentFilters]);
 
-  const saveCurrentAsView = useCallback((name: string) => {
+  const saveCustomView = useCallback((name: string, filters: CustomerFilterState) => {
     const trimmedName = name.trim();
     if (trimmedName.length < 1 || trimmedName.length > 40) {
       throw new Error('Name must be between 1 and 40 characters.');
     }
-    if (views.some((v) => v.name.toLowerCase() === trimmedName.toLowerCase())) {
+    if (globalViews.some((v) => v.name.toLowerCase() === trimmedName.toLowerCase())) {
       throw new Error('A view with this name already exists.');
     }
+
+    const cleaned = sanitizeFilters(filters);
 
     const newView: SavedView = {
       id: `custom-${Date.now()}`,
       name: trimmedName,
       isPredefined: false,
-      filters: {
-        status: currentFilters.status,
-        company: currentFilters.company,
-        risk: currentFilters.risk,
-        lastContactFrom: currentFilters.lastContactFrom,
-        lastContactTo: currentFilters.lastContactTo,
-        email: currentFilters.email,
-        phone: currentFilters.phone,
-      },
+      filters: cleaned,
     };
 
     globalViews = [...globalViews, newView];
     notifyListeners();
     return newView.id;
-  }, [currentFilters, views]);
+  }, []);
+
+  const saveCurrentAsView = useCallback((name: string) => {
+    return saveCustomView(name, currentFilters);
+  }, [currentFilters, saveCustomView]);
 
   const deleteView = useCallback((id: string) => {
     const view = globalViews.find((v) => v.id === id);
@@ -151,6 +198,7 @@ export function useSavedViews() {
   return {
     views,
     selectedViewId,
+    saveCustomView,
     saveCurrentAsView,
     deleteView,
     reorderViews,
