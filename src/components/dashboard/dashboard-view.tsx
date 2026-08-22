@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useCustomerStats } from '@/hooks/use-customer-stats';
@@ -17,19 +17,102 @@ import {
   ShieldAlert,
   Clock,
   ChevronRight,
+  ChevronDown,
   Activity,
   HeartHandshake,
   TrendingUp,
   Building2,
   CalendarCheck,
   Zap,
+  Info,
+  ArrowUp,
+  ArrowDown,
+  Minus,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+interface TrendDeltaProps {
+  delta: number;
+  unit?: string;
+  hasPrev: boolean;
+}
+
+function TrendDelta({ delta, unit = '', hasPrev }: TrendDeltaProps) {
+  if (!hasPrev) {
+    return (
+      <span className="text-[11px] font-medium text-[var(--text-tertiary)]">
+        New session
+      </span>
+    );
+  }
+
+  if (delta > 0) {
+    return (
+      <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-red-600 dark:text-red-400">
+        <ArrowUp className="h-3 w-3" />
+        <span>+{delta}{unit} since last visit</span>
+      </span>
+    );
+  }
+
+  if (delta < 0) {
+    return (
+      <span className="inline-flex items-center gap-0.5 text-[11px] font-semibold text-emerald-600 dark:text-emerald-400">
+        <ArrowDown className="h-3 w-3" />
+        <span>{delta}{unit} since last visit</span>
+      </span>
+    );
+  }
+
+  return (
+    <span className="inline-flex items-center gap-0.5 text-[11px] font-medium text-[var(--text-tertiary)]">
+      <Minus className="h-3 w-3" />
+      <span>0{unit} since last visit</span>
+    </span>
+  );
+}
+
 export function DashboardView() {
   const router = useRouter();
   const { data: stats, isLoading, isError, error, refetch } = useCustomerStats();
+
+  const [isRiskGuideOpen, setIsRiskGuideOpen] = useState(false);
+
+  // Lazily read previous session snapshot once via useState initializer
+  const [prevSnapshot] = useState<{
+    needsAttention: number;
+    atRiskRatio: number;
+    avgDaysSinceContact: number;
+    capturedAt: number;
+  } | null>(() => {
+    if (typeof window === 'undefined') return null;
+    try {
+      const raw = sessionStorage.getItem('greentiq-dashboard-last-snapshot');
+      return raw ? JSON.parse(raw) : null;
+    } catch {
+      return null;
+    }
+  });
+
+  // Write current stats to sessionStorage for the next visit
+  useEffect(() => {
+    if (!stats) return;
+    const atRiskRatio = stats.active > 0 ? Math.round((stats.needsAttention / stats.active) * 100) : 0;
+    try {
+      sessionStorage.setItem(
+        'greentiq-dashboard-last-snapshot',
+        JSON.stringify({
+          needsAttention: stats.needsAttention,
+          atRiskRatio,
+          avgDaysSinceContact: stats.avgDaysSinceContact,
+          capturedAt: Date.now(),
+        })
+      );
+    } catch {
+      // Ignore sessionStorage exceptions
+    }
+  }, [stats]);
 
   if (isLoading) {
     return (
@@ -63,6 +146,18 @@ export function DashboardView() {
     );
   }
 
+  // Client-side composite Weighted Portfolio Health Score:
+  // Low Risk (0-7d) = 100% credit, Medium Risk (8-30d) = 50% credit, High Risk (31+d) = 0% credit
+  const weightedHealthScore = stats.total > 0
+    ? Math.round(((stats.lowRiskCount * 100 + stats.mediumRiskCount * 50) / (stats.total * 100)) * 100)
+    : 0;
+
+  const currentAtRiskRatio = stats.active > 0 ? Math.round((stats.needsAttention / stats.active) * 100) : 0;
+
+  const needsAttentionDelta = prevSnapshot ? stats.needsAttention - prevSnapshot.needsAttention : 0;
+  const atRiskRatioDelta = prevSnapshot ? currentAtRiskRatio - prevSnapshot.atRiskRatio : 0;
+  const avgRecencyDelta = prevSnapshot ? stats.avgDaysSinceContact - prevSnapshot.avgDaysSinceContact : 0;
+
   // 1. Primary KPI Cards
   const kpiCards = [
     {
@@ -77,6 +172,7 @@ export function DashboardView() {
       badge: 'All Accounts',
       badgeClass: 'bg-[var(--badge-default-bg)] text-[var(--badge-default-text)]',
       accentColor: 'border-[var(--border-default)]',
+      trend: null,
     },
     {
       id: 'active',
@@ -90,6 +186,7 @@ export function DashboardView() {
       badge: 'Active',
       badgeClass: 'bg-[var(--risk-low-bg)] text-[var(--risk-low-text)]',
       accentColor: 'border-[var(--border-default)]',
+      trend: null,
     },
     {
       id: 'inactive',
@@ -103,6 +200,7 @@ export function DashboardView() {
       badge: 'Inactive',
       badgeClass: 'bg-[var(--surface-tertiary)] text-[var(--text-secondary)]',
       accentColor: 'border-[var(--border-default)]',
+      trend: null,
     },
     {
       id: 'needs-attention',
@@ -116,6 +214,7 @@ export function DashboardView() {
       badge: 'High Risk',
       badgeClass: 'bg-[var(--risk-high-bg)] text-[var(--risk-high-text)] font-bold animate-pulse',
       accentColor: 'border-[var(--accent-red-border)]',
+      trend: <TrendDelta delta={needsAttentionDelta} hasPrev={Boolean(prevSnapshot)} />,
     },
   ];
 
@@ -230,6 +329,12 @@ export function DashboardView() {
                   </span>
                 </div>
 
+                {card.trend && (
+                  <div className="mt-1">
+                    {card.trend}
+                  </div>
+                )}
+
                 <p className="mt-2 text-[12px] text-[var(--text-tertiary)] leading-snug">
                   {card.description}
                 </p>
@@ -261,7 +366,7 @@ export function DashboardView() {
               </p>
             </div>
             <span className="text-[11px] font-bold uppercase tracking-wider bg-[var(--risk-low-bg)] text-[var(--risk-low-text)] px-2 py-1 rounded">
-              {stats.healthScore}% Healthy
+              {stats.healthScore}% Low Risk
             </span>
           </div>
 
@@ -329,49 +434,55 @@ export function DashboardView() {
           </div>
 
           <div className="space-y-4">
-            {/* Health Score Metric */}
+            {/* Weighted Health Score Metric */}
             <div className="p-4 rounded-[10px] border border-[var(--accent-green-border)] bg-[var(--accent-green-bg)] space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[13px] font-bold text-[var(--risk-low-text)] flex items-center gap-1.5">
                   <HeartHandshake className="h-4 w-4" />
-                  Portfolio Health Ratio
+                  Weighted Portfolio Health
                 </span>
                 <span className="text-[18px] font-extrabold text-[var(--risk-low-text)]">
-                  {stats.healthScore}%
+                  {weightedHealthScore}%
                 </span>
               </div>
               <div className="w-full h-2 bg-[var(--risk-low-bg)] rounded-full overflow-hidden">
                 <div
                   className="h-full bg-[var(--primary)] rounded-full transition-all duration-500"
-                  style={{ width: `${stats.healthScore}%` }}
+                  style={{ width: `${weightedHealthScore}%` }}
                 />
               </div>
               <p className="text-[11px] text-[var(--risk-low-text)] opacity-80">
-                {stats.lowRiskCount} of {stats.total} accounts contacted within the past 7 calendar days.
+                Composite health index weighting Low Risk (100%), Medium Risk (50%), and High Risk (0%). Distinct from single-tier Low Risk count.
               </p>
             </div>
 
-            {/* Average Days & High-Risk Exposure */}
+            {/* Average Days & High-Risk Exposure with Trend Deltas */}
             <div className="grid grid-cols-2 gap-3">
-              <div className="p-3.5 rounded-[10px] border border-[var(--border-default)] bg-[var(--surface-secondary)] space-y-1">
+              <div className="p-3.5 rounded-[10px] border border-[var(--border-default)] bg-[var(--surface-secondary)] space-y-1.5">
                 <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--text-tertiary)] uppercase">
                   <CalendarCheck className="h-3.5 w-3.5" />
                   <span>Avg Recency</span>
                 </div>
-                <p className="text-[20px] font-bold text-[var(--text-primary)]">
+                <p className="text-[20px] font-bold text-[var(--text-primary)] leading-none">
                   {stats.avgDaysSinceContact} <span className="text-[13px] font-normal text-[var(--text-tertiary)]">days</span>
                 </p>
+                <div>
+                  <TrendDelta delta={avgRecencyDelta} unit="d" hasPrev={Boolean(prevSnapshot)} />
+                </div>
                 <p className="text-[11px] text-[var(--text-tertiary)]">Average contact interval</p>
               </div>
 
-              <div className="p-3.5 rounded-[10px] border border-[var(--accent-red-border)] bg-[var(--accent-red-bg)] space-y-1">
+              <div className="p-3.5 rounded-[10px] border border-[var(--accent-red-border)] bg-[var(--accent-red-bg)] space-y-1.5">
                 <div className="flex items-center gap-1.5 text-[11px] font-semibold text-[var(--risk-high-text)] uppercase">
                   <Zap className="h-3.5 w-3.5" />
                   <span>At-Risk Ratio</span>
                 </div>
-                <p className="text-[20px] font-bold text-[var(--risk-high-text)]">
-                  {stats.active > 0 ? Math.round((stats.needsAttention / stats.active) * 100) : 0}%
+                <p className="text-[20px] font-bold text-[var(--risk-high-text)] leading-none">
+                  {currentAtRiskRatio}%
                 </p>
+                <div>
+                  <TrendDelta delta={atRiskRatioDelta} unit="%" hasPrev={Boolean(prevSnapshot)} />
+                </div>
                 <p className="text-[11px] text-[var(--risk-high-text)] opacity-80">Active accounts needing contact</p>
               </div>
             </div>
@@ -428,59 +539,83 @@ export function DashboardView() {
         </div>
       </div>
 
-      {/* Follow-up Risk Engine Operational Reference */}
-      <div className="rounded-[12px] border border-[var(--border-default)] bg-[var(--card)] p-6 shadow-[0_1px_2px_rgba(16,24,40,0.05)] space-y-4">
-        <div className="flex items-center gap-3">
-          <div className="h-10 w-10 rounded-lg bg-[var(--accent-green-bg)] border border-[var(--accent-green-border)] flex items-center justify-center text-[var(--primary)]">
-            <ShieldAlert className="h-5 w-5" />
-          </div>
-          <div>
-            <h3 className="text-[16px] font-bold text-[var(--text-primary)]">
-              Follow-up Risk Intelligence Engine
-            </h3>
-            <p className="text-[13px] text-[var(--text-tertiary)]">
-              Transparent, rule-based contact recency tracking configured across three operational tiers:
-            </p>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
-          <div className="p-4 rounded-[8px] border border-[var(--accent-green-border)] bg-[var(--accent-green-bg)] space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] font-bold text-[var(--risk-low-text)]">Low Risk</span>
-              <span className="text-[11px] font-semibold uppercase bg-[var(--risk-low-bg)] text-[var(--risk-low-text)] px-2 py-0.5 rounded">
-                0–7 Days
-              </span>
+      {/* Collapsible Follow-up Risk Engine Operational Reference */}
+      <div className="rounded-[12px] border border-[var(--border-default)] bg-[var(--card)] shadow-[0_1px_2px_rgba(16,24,40,0.05)] overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setIsRiskGuideOpen((prev) => !prev)}
+          className="w-full p-5 flex items-center justify-between hover:bg-[var(--surface-secondary)] transition-colors text-left"
+          aria-expanded={isRiskGuideOpen}
+        >
+          <div className="flex items-center gap-3">
+            <div className="h-9 w-9 rounded-lg bg-[var(--accent-green-bg)] border border-[var(--accent-green-border)] flex items-center justify-center text-[var(--primary)] shrink-0">
+              <ShieldAlert className="h-5 w-5" />
             </div>
-            <p className="text-[12px] text-[var(--risk-low-text)] opacity-80 leading-relaxed">
-              Recent interaction touchpoint within the past week. Healthy relationship momentum.
-            </p>
+            <div>
+              <h3 className="text-[15px] font-bold text-[var(--text-primary)] flex items-center gap-2">
+                <span>How is Follow-up Risk calculated?</span>
+                <Info className="h-4 w-4 text-[var(--text-tertiary)]" />
+              </h3>
+              <p className="text-[12px] text-[var(--text-tertiary)] mt-0.5">
+                Rule-based contact recency tracking configured across three operational tiers.
+              </p>
+            </div>
           </div>
 
-          <div className="p-4 rounded-[8px] border border-[var(--accent-amber-border)] bg-[var(--accent-amber-bg)] space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] font-bold text-[var(--risk-medium-text)]">Medium Risk</span>
-              <span className="text-[11px] font-semibold uppercase bg-[var(--risk-medium-bg)] text-[var(--risk-medium-text)] px-2 py-0.5 rounded">
-                8–30 Days
-              </span>
-            </div>
-            <p className="text-[12px] text-[var(--risk-medium-text)] opacity-80 leading-relaxed">
-              Moderate lapse since last communication. Approaching recommended touchpoint cycle.
-            </p>
+          <div className="flex items-center gap-2 text-[13px] font-medium text-[var(--text-secondary)]">
+            <span className="hidden sm:inline text-[12px] text-[var(--text-tertiary)]">
+              {isRiskGuideOpen ? 'Hide tier definitions' : 'View tier definitions'}
+            </span>
+            <ChevronDown
+              className={cn(
+                'h-5 w-5 text-[var(--text-tertiary)] transition-transform duration-200',
+                isRiskGuideOpen ? 'rotate-180' : 'rotate-0'
+              )}
+            />
           </div>
+        </button>
 
-          <div className="p-4 rounded-[8px] border border-[var(--accent-red-border)] bg-[var(--accent-red-bg)] space-y-1">
-            <div className="flex items-center justify-between">
-              <span className="text-[13px] font-bold text-[var(--risk-high-text)]">High Risk</span>
-              <span className="text-[11px] font-semibold uppercase bg-[var(--risk-high-bg)] text-[var(--risk-high-text)] px-2 py-0.5 rounded">
-                31+ Days
-              </span>
+        {isRiskGuideOpen && (
+          <div className="px-6 pb-6 pt-2 border-t border-[var(--border-subtle)] space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+              <div className="p-4 rounded-[8px] border border-[var(--accent-green-border)] bg-[var(--accent-green-bg)] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-bold text-[var(--risk-low-text)]">Low Risk</span>
+                  <span className="text-[11px] font-semibold uppercase bg-[var(--risk-low-bg)] text-[var(--risk-low-text)] px-2 py-0.5 rounded">
+                    0–7 Days
+                  </span>
+                </div>
+                <p className="text-[12px] text-[var(--risk-low-text)] opacity-80 leading-relaxed">
+                  Recent interaction touchpoint within the past week. Healthy relationship momentum.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-[8px] border border-[var(--accent-amber-border)] bg-[var(--accent-amber-bg)] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-bold text-[var(--risk-medium-text)]">Medium Risk</span>
+                  <span className="text-[11px] font-semibold uppercase bg-[var(--risk-medium-bg)] text-[var(--risk-medium-text)] px-2 py-0.5 rounded">
+                    8–30 Days
+                  </span>
+                </div>
+                <p className="text-[12px] text-[var(--risk-medium-text)] opacity-80 leading-relaxed">
+                  Moderate lapse since last communication. Approaching recommended touchpoint cycle.
+                </p>
+              </div>
+
+              <div className="p-4 rounded-[8px] border border-[var(--accent-red-border)] bg-[var(--accent-red-bg)] space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[13px] font-bold text-[var(--risk-high-text)]">High Risk</span>
+                  <span className="text-[11px] font-semibold uppercase bg-[var(--risk-high-bg)] text-[var(--risk-high-text)] px-2 py-0.5 rounded">
+                    31+ Days
+                  </span>
+                </div>
+                <p className="text-[12px] text-[var(--risk-high-text)] opacity-80 leading-relaxed">
+                  No logged contact for over a month. Active accounts in this tier immediately trigger the <strong>Needs Attention</strong> workflow.
+                </p>
+              </div>
             </div>
-            <p className="text-[12px] text-[var(--risk-high-text)] opacity-80 leading-relaxed">
-              No logged contact for over a month. Active accounts in this tier immediately trigger the <strong>Needs Attention</strong> workflow.
-            </p>
           </div>
-        </div>
+        )}
       </div>
     </div>
   );

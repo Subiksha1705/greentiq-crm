@@ -21,6 +21,17 @@ const LAST_NAMES = [
   'Roberts', 'Smith', 'Taylor', 'Underwood', 'Vance', 'Wright', 'Young', 'Zimmerman'
 ];
 
+const COMPANY_WEIGHTS = [24, 20, 17, 15, 12, 10, 9, 8, 8, 7, 7, 6, 6, 6, 6, 5, 5, 5, 5, 5, 5, 5, 4];
+
+// Build flat array of length 200 from weights
+const WEIGHTED_COMPANY_POOL: string[] = [];
+COMPANY_WEIGHTS.forEach((weight, index) => {
+  const company = COMPANIES[index % COMPANIES.length];
+  for (let w = 0; w < weight; w++) {
+    WEIGHTED_COMPANY_POOL.push(company);
+  }
+});
+
 /**
  * Helper to generate a date offset in days from today.
  */
@@ -56,7 +67,7 @@ function generateSeedCustomers(): Customer[] {
   for (let i = 0; i < 200; i++) {
     const firstName = FIRST_NAMES[i % FIRST_NAMES.length];
     const lastName = LAST_NAMES[(i * 7) % LAST_NAMES.length];
-    const company = COMPANIES[(i * 3) % COMPANIES.length];
+    const company = WEIGHTED_COMPANY_POOL[(i * 37) % WEIGHTED_COMPANY_POOL.length];
     const daysAgo = dayOffsets[i % dayOffsets.length];
     
     // Status distribution: ~80% active, ~20% inactive
