@@ -3,7 +3,7 @@
 import React from 'react';
 import { SearchInput } from '@/components/common/search-input';
 import { Button } from '@/components/ui/button';
-import { SlidersHorizontal, Plus, RefreshCw, Download, UploadCloud } from 'lucide-react';
+import { SlidersHorizontal, Plus, RefreshCw, Download, UploadCloud, List, LayoutGrid } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface CustomerToolbarProps {
@@ -16,6 +16,8 @@ interface CustomerToolbarProps {
   onExportCsv?: () => void;
   activeFilterCount?: number;
   isFetching?: boolean;
+  viewMode?: 'table' | 'cards';
+  onViewModeChange?: (mode: 'table' | 'cards') => void;
 }
 
 export function CustomerToolbar({
@@ -28,6 +30,8 @@ export function CustomerToolbar({
   onExportCsv,
   activeFilterCount = 0,
   isFetching = false,
+  viewMode = 'table',
+  onViewModeChange,
 }: CustomerToolbarProps) {
   const handleExportClick = onExport || onExportCsv;
 
@@ -73,6 +77,30 @@ export function CustomerToolbar({
             <Download className="h-4 w-4 text-[var(--text-secondary)]" />
             <span>Export</span>
           </Button>
+        )}
+
+        {/* View Mode Toggle */}
+        {onViewModeChange && (
+          <div className="flex items-center rounded-lg border border-[var(--border-default)] bg-[var(--surface-secondary)] p-0.5">
+            <Button
+              variant={viewMode === 'table' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => onViewModeChange('table')}
+              className="h-8 px-2.5 text-[12px] text-[var(--text-primary)]"
+              title="Table View"
+            >
+              <List className="h-4 w-4" />
+            </Button>
+            <Button
+              variant={viewMode === 'cards' ? 'secondary' : 'ghost'}
+              size="sm"
+              onClick={() => onViewModeChange('cards')}
+              className="h-8 px-2.5 text-[12px] text-[var(--text-primary)]"
+              title="Cards View"
+            >
+              <LayoutGrid className="h-4 w-4" />
+            </Button>
+          </div>
         )}
 
         {/* Filter Drawer Toggle */}

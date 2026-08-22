@@ -33,3 +33,22 @@ export function getCalendarDaysDifference(targetDate: Date | string | number, re
   const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
   return diffDays;
 }
+
+/**
+ * Formats a date cleanly into "MMM d, yyyy" format with safety against null/invalid values.
+ */
+export function formatDateSafely(dateInput: Date | string | number | undefined | null): string {
+  if (!dateInput) return '—';
+  try {
+    const d = new Date(dateInput);
+    if (isNaN(d.getTime())) return '—';
+    return d.toLocaleDateString('en-US', {
+      month: 'short',
+      day: 'numeric',
+      year: 'numeric',
+    });
+  } catch {
+    return '—';
+  }
+}
+

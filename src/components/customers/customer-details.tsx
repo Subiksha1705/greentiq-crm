@@ -271,7 +271,7 @@ export function CustomerDetails({
           ) : (
             <>
               {/* Drawer Header */}
-              <div className="p-6 border-b border-[var(--border-default)] bg-[var(--surface-secondary)]">
+              <div className="p-6 pr-14 border-b border-[var(--border-default)] bg-[var(--surface-secondary)]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-4">
                     <Avatar className="h-14 w-14 border border-[var(--border-default)] shadow-xs">

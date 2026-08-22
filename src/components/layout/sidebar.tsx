@@ -3,7 +3,7 @@
 import React from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Users, Leaf, ChevronRight, X } from 'lucide-react';
+import { LayoutDashboard, Users, Building2, Leaf, ChevronRight, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { SavedViewsList } from '@/components/customers/saved-views';
 
@@ -27,6 +27,12 @@ export function Sidebar({ mobileOpen = false, setMobileOpen }: SidebarProps) {
       href: '/customers',
       icon: Users,
       active: pathname.startsWith('/customers'),
+    },
+    {
+      title: 'Companies',
+      href: '/companies',
+      icon: Building2,
+      active: pathname.startsWith('/companies'),
     },
   ];
 

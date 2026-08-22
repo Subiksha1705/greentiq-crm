@@ -133,7 +133,7 @@ export function CustomerFilters({
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
       <SheetContent side="right" className="w-full sm:max-w-md flex flex-col h-full bg-[var(--card)] text-[var(--foreground)]">
         {/* Drawer Header */}
-        <SheetHeader className="p-6 border-b border-[var(--border-default)]">
+        <SheetHeader className="p-6 pr-14 border-b border-[var(--border-default)]">
           <div className="flex items-center gap-2">
             {isSaveViewMode ? (
               <BookmarkPlus className="h-5 w-5 text-[var(--primary)]" />

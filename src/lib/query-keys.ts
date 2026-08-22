@@ -5,6 +5,7 @@
  */
 
 import { CustomerListParams } from '@/types/customer';
+import { CompanyListParams } from '@/types/company';
 
 export const customerKeys = {
   all: ['customers'] as const,
@@ -17,4 +18,14 @@ export const customerKeys = {
   filterOptions: () => [...customerKeys.all, 'filterOptions'] as const,
   stats: () => [...customerKeys.all, 'stats'] as const,
 };
+
+export const companyKeys = {
+  all: ['companies'] as const,
+  lists: () => [...companyKeys.all, 'list'] as const,
+  list: (params?: CompanyListParams) => [...companyKeys.lists(), params ?? {}] as const,
+  details: () => [...companyKeys.all, 'detail'] as const,
+  detail: (id: string) => [...companyKeys.details(), id] as const,
+  options: () => [...companyKeys.all, 'options'] as const,
+};
+
 

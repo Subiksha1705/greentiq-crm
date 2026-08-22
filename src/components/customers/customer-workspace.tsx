@@ -37,7 +37,23 @@ import {
 } from '@/components/ui/dialog';
 import { CustomerSortState, CustomerStatus } from '@/types/customer';
 import { CustomerFormValues } from '@/lib/validations/customer';
-import { X } from 'lucide-react';
+import { StatusBadge } from '@/components/common/status-badge';
+import { FollowUpRiskBadge } from '@/components/customers/follow-up-risk-badge';
+import { getFollowUpRisk } from '@/lib/customer-rules';
+import { formatDateSafely } from '@/lib/utils';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Checkbox } from '@/components/ui/checkbox';
+import {
+  X,
+  Building2,
+  Mail,
+  Phone,
+  Clock,
+  Pencil,
+  Trash2,
+  ChevronRight,
+  User,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 
@@ -71,6 +87,7 @@ export function CustomerWorkspace() {
   const deleteCustomerMutation = useDeleteCustomer();
 
   // Drawer & Modal states
+  const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -264,12 +281,14 @@ export function CustomerWorkspace() {
         onImport={() => setIsImportModalOpen(true)}
         onExport={() => setIsExportModalOpen(true)}
         isFetching={isFetching}
+        viewMode={viewMode}
+        onViewModeChange={setViewMode}
       />
 
       {/* Active Filter Chips Bar */}
       {activeFilterChips.length > 0 && (
-        <div className="flex items-center flex-wrap gap-2 p-3 bg-muted/30 border rounded-lg text-xs">
-          <span className="font-semibold text-muted-foreground mr-1">Active Filters:</span>
+        <div className="flex items-center flex-wrap gap-2 p-3 bg-[var(--surface-secondary)] border border-[var(--border-default)] rounded-lg text-xs">
+          <span className="font-semibold text-[var(--text-tertiary)] mr-1">Active Filters:</span>
           {activeFilterChips.map((chip) => (
             <FilterChip
               key={chip.id}
@@ -282,7 +301,7 @@ export function CustomerWorkspace() {
             variant="ghost"
             size="sm"
             onClick={clearFilters}
-            className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive ml-auto gap-1"
+            className="h-7 px-2 text-xs text-[var(--text-tertiary)] hover:text-[var(--destructive)] ml-auto gap-1"
           >
             <X className="h-3 w-3" />
             <span>Clear All</span>
@@ -299,22 +318,156 @@ export function CustomerWorkspace() {
         />
       )}
 
-      {/* Loading state vs Table */}
+      {/* Loading state vs Content */}
       {isLoading ? (
         <LoadingState variant="table" count={params.pageSize || 10} />
       ) : data ? (
         <div className="space-y-4">
-          <CustomerTable
-            customers={data.data}
-            sortBy={params.sortBy}
-            sortOrder={params.sortOrder}
-            onSortChange={handleSortChange}
-            onSelectCustomer={handleSelectCustomer}
-            onClearFilters={clearFilters}
-            selectedCustomerIds={selectedCustomerIds}
-            onToggleSelectCustomer={handleToggleSelectCustomer}
-            onToggleSelectAll={handleToggleSelectAll}
-          />
+          {viewMode === 'table' ? (
+            <CustomerTable
+              customers={data.data}
+              sortBy={params.sortBy}
+              sortOrder={params.sortOrder}
+              onSortChange={handleSortChange}
+              onSelectCustomer={handleSelectCustomer}
+              onClearFilters={clearFilters}
+              selectedCustomerIds={selectedCustomerIds}
+              onToggleSelectCustomer={handleToggleSelectCustomer}
+              onToggleSelectAll={handleToggleSelectAll}
+            />
+          ) : (
+            /* Cards View */
+            <div className="space-y-4">
+              {data.data.length === 0 ? (
+                <div className="p-12 text-center rounded-[12px] bg-[var(--card)] border border-[var(--border-default)]">
+                  <User className="h-10 w-10 mx-auto text-[var(--text-quaternary)] mb-3" />
+                  <h3 className="text-[16px] font-bold text-[var(--text-primary)]">
+                    No customers found
+                  </h3>
+                  <p className="text-[13px] text-[var(--text-tertiary)] mt-1 max-w-sm mx-auto">
+                    Try adjusting your search criteria or filter selections.
+                  </p>
+                  <Button
+                    onClick={clearFilters}
+                    variant="outline"
+                    className="mt-4 text-[13px] border-[var(--border-default)]"
+                  >
+                    Clear Filters
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                  {data.data.map((customer) => {
+                    const isSelected = selectedCustomerIds.includes(customer.id);
+                    const risk = getFollowUpRisk(customer.lastContactDate);
+                    return (
+                      <div
+                        key={customer.id}
+                        onClick={() => handleSelectCustomer(customer.id)}
+                        className={`p-4 rounded-[12px] bg-[var(--card)] border transition-all cursor-pointer flex flex-col justify-between space-y-3.5 group shadow-xs hover:border-[var(--primary)]/50 ${
+                          isSelected
+                            ? 'border-[var(--primary)] bg-[var(--accent)]/30'
+                            : 'border-[var(--border-default)]'
+                        }`}
+                      >
+                        {/* Card Header */}
+                        <div className="flex items-start justify-between gap-2.5">
+                          <div className="flex items-center gap-2.5 min-w-0">
+                            <div onClick={(e) => e.stopPropagation()}>
+                              <Checkbox
+                                checked={isSelected}
+                                onCheckedChange={() => handleToggleSelectCustomer(customer.id)}
+                                aria-label={`Select ${customer.name}`}
+                              />
+                            </div>
+                            <Avatar className="h-9 w-9 border border-[var(--border-default)] shrink-0">
+                              <AvatarFallback className="bg-[var(--surface-tertiary)] text-[var(--text-primary)] text-[12px] font-semibold">
+                                {customer.name.slice(0, 2).toUpperCase()}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="min-w-0">
+                              <h4 className="font-bold text-[14px] text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors truncate">
+                                {customer.name}
+                              </h4>
+                              <p className="text-[12px] text-[var(--text-tertiary)] flex items-center gap-1 truncate">
+                                <Building2 className="h-3 w-3 shrink-0 text-[var(--text-quaternary)]" />
+                                <span className="truncate">{customer.company}</span>
+                              </p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-1 shrink-0">
+                            <StatusBadge status={customer.status} />
+                          </div>
+                        </div>
+
+                        {/* Contact details */}
+                        <div className="space-y-1.5 text-[12px] text-[var(--text-secondary)]">
+                          <div className="flex items-center gap-1.5 truncate">
+                            <Mail className="h-3.5 w-3.5 text-[var(--text-tertiary)] shrink-0" />
+                            <span className="truncate">{customer.email}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 truncate">
+                            <Phone className="h-3.5 w-3.5 text-[var(--text-tertiary)] shrink-0" />
+                            <span className="truncate">{customer.phone}</span>
+                          </div>
+                          <div className="flex items-center gap-1.5 text-[var(--text-tertiary)]">
+                            <Clock className="h-3.5 w-3.5 shrink-0" />
+                            <span>Last contact: {formatDateSafely(customer.lastContactDate)}</span>
+                          </div>
+                        </div>
+
+                        {/* Notes preview */}
+                        {customer.notes && (
+                          <p className="text-[11px] text-[var(--text-tertiary)] line-clamp-1 italic">
+                            &quot;{customer.notes}&quot;
+                          </p>
+                        )}
+
+                        {/* Card Footer */}
+                        <div className="pt-2.5 border-t border-[var(--border-default)] flex items-center justify-between">
+                          <FollowUpRiskBadge risk={risk} compact />
+
+                          <div
+                            className="flex items-center gap-1"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setEditingCustomerId(customer.id)}
+                              className="h-7 w-7 p-0 text-[var(--text-tertiary)] hover:text-[var(--primary)] hover:bg-[var(--surface-tertiary)]"
+                              title="Edit Customer"
+                            >
+                              <Pencil className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setDeletingCustomerId(customer.id)}
+                              className="h-7 w-7 p-0 text-[var(--text-tertiary)] hover:text-[var(--destructive)] hover:bg-[var(--surface-tertiary)]"
+                              title="Delete Customer"
+                            >
+                              <Trash2 className="h-3 w-3" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleSelectCustomer(customer.id)}
+                              className="h-7 w-7 p-0 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-tertiary)]"
+                              title="View Details"
+                            >
+                              <ChevronRight className="h-3.5 w-3.5" />
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
 
           <DataTablePagination
             page={data.page}

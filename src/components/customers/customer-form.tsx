@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePicker } from '@/components/ui/date-picker';
 import { PhoneInput } from '@/components/ui/phone-input';
+import { useCompanyOptions } from '@/hooks/use-company-options';
 import {
   Select,
   SelectContent,
@@ -36,6 +37,7 @@ export function CustomerForm({
   isSubmitting = false,
 }: CustomerFormProps) {
   const todayStr = format(new Date(), 'yyyy-MM-dd');
+  const { data: companyOptions = [] } = useCompanyOptions();
 
   const {
     register,
@@ -75,15 +77,56 @@ export function CustomerForm({
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[12px] font-semibold text-[var(--text-secondary)]">
-            Company <span className="text-[var(--destructive)]">*</span>
+          <label className="text-[12px] font-semibold text-[var(--text-secondary)] flex items-center justify-between">
+            <span>Company <span className="text-[var(--destructive)]">*</span></span>
           </label>
-          <Input
-            {...register('company')}
-            placeholder="e.g. Acme Corp"
-            className="h-9 text-[14px] border-[var(--border-default)] bg-[var(--card)] text-[var(--text-primary)]"
-            disabled={isSubmitting}
-          />
+          <div className="space-y-1.5">
+            <Controller
+              name="company"
+              control={control}
+              render={({ field }) => (
+                <div className="space-y-2">
+                  <Select
+                    value={field.value || ''}
+                    onValueChange={(val) => {
+                      if (val === '__custom__') {
+                        field.onChange('');
+                      } else {
+                        field.onChange(val);
+                      }
+                    }}
+                    disabled={isSubmitting}
+                  >
+                    <SelectTrigger className="h-9 text-[14px] border-[var(--border-default)] bg-[var(--card)] text-[var(--text-primary)]">
+                      <SelectValue placeholder="Select or enter company" />
+                    </SelectTrigger>
+                    <SelectContent className="max-h-56">
+                      {companyOptions.map((c) => (
+                        <SelectItem key={c.id} value={c.name}>
+                          <div className="flex items-center justify-between gap-2 w-full">
+                            <span>{c.name}</span>
+                            <span className="text-[11px] text-[var(--text-tertiary)] font-normal">
+                              {c.tier}
+                            </span>
+                          </div>
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+
+                  {/* Fallback free-text input if user wants a custom or unlisted company */}
+                  <Input
+                    type="text"
+                    value={field.value || ''}
+                    onChange={(e) => field.onChange(e.target.value)}
+                    placeholder="Or type custom company name..."
+                    className="h-8 text-[13px] border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-primary)]"
+                    disabled={isSubmitting}
+                  />
+                </div>
+              )}
+            />
+          </div>
           {errors.company && (
             <p className="text-[12px] text-[var(--destructive)]">{errors.company.message}</p>
           )}
