@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import { Input } from '@/components/ui/input';
-import { Search, X } from 'lucide-react';
+import { Search, X, Loader2 } from 'lucide-react';
 import { useDebouncedValue } from '@/hooks/use-debounced-value';
 import { cn } from '@/lib/utils';
 
@@ -25,6 +25,8 @@ export function SearchInput({
   const [searchTerm, setSearchTerm] = useState(externalValue);
   const debouncedSearchTerm = useDebouncedValue(searchTerm, debounceMs);
 
+  const isDebouncing = searchTerm !== debouncedSearchTerm;
+
   // Use refs to track last emitted value and latest onChange function
   const lastEmittedRef = useRef<string>(externalValue);
   const onChangeRef = useRef(onChange);
@@ -34,7 +36,7 @@ export function SearchInput({
     onChangeRef.current = onChange;
   }, [onChange]);
 
-  // Synchronize internal state if external value changes (e.g. clear filters clicked)
+  // Synchronize internal state if external value changes (e.g. clear filters clicked or URL state changed)
   useEffect(() => {
     setSearchTerm(externalValue);
     lastEmittedRef.current = externalValue;
@@ -48,8 +50,21 @@ export function SearchInput({
     }
   }, [debouncedSearchTerm]);
 
+  // Instant clear handler
   const handleClear = () => {
     setSearchTerm('');
+    if (lastEmittedRef.current !== '') {
+      lastEmittedRef.current = '';
+      onChangeRef.current('');
+    }
+  };
+
+  // Keyboard accessibility: ESC key clears search
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      handleClear();
+    }
   };
 
   return (
@@ -59,19 +74,26 @@ export function SearchInput({
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
+        onKeyDown={handleKeyDown}
         placeholder={placeholder}
-        className="pl-9 pr-8 h-[36px] text-[14px] leading-[1.5] rounded-[6px] border border-[#D1D5DB] bg-white text-[#1A1D23] placeholder:text-[#9CA3AF] focus-visible:ring-[#16A34A] focus-visible:ring-1"
+        aria-label="Search customers"
+        className="pl-9 pr-9 h-[36px] text-[14px] leading-[1.5] rounded-[6px] border border-[#D1D5DB] bg-white text-[#1A1D23] placeholder:text-[#9CA3AF] focus-visible:ring-[#16A34A] focus-visible:ring-1"
       />
-      {searchTerm && (
-        <button
-          type="button"
-          onClick={handleClear}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-[#6B7280] hover:text-[#1A1D23] hover:bg-[#F3F4F6] transition-colors"
-          aria-label="Clear search"
-        >
-          <X className="h-3.5 w-3.5" />
-        </button>
-      )}
+      <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
+        {isDebouncing && (
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-[#16A34A]" />
+        )}
+        {searchTerm && (
+          <button
+            type="button"
+            onClick={handleClear}
+            className="p-0.5 rounded-full text-[#6B7280] hover:text-[#1A1D23] hover:bg-[#F3F4F6] transition-colors"
+            aria-label="Clear search"
+          >
+            <X className="h-3.5 w-3.5" />
+          </button>
+        )}
+      </div>
     </div>
   );
 }
