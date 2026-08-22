@@ -1,14 +1,16 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { useCustomerFilters } from '@/hooks/use-customer-filters';
 import { useCustomers } from '@/hooks/use-customers';
 import { CustomerToolbar } from './customer-toolbar';
 import { CustomerTable } from './customer-table';
+import { CustomerFilters } from './customer-filters';
 import { DataTablePagination } from '@/components/common/data-table-pagination';
 import { LoadingState } from '@/components/common/loading-state';
+import { FilterChip } from '@/components/common/filter-chip';
 import { CustomerSortState } from '@/types/customer';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function CustomerWorkspace() {
@@ -18,12 +20,26 @@ export function CustomerWorkspace() {
     setSorting,
     setPage,
     setPageSize,
+    setFilters,
     clearFilters,
+    activeFilterCount,
+    activeFilterChips,
   } = useCustomerFilters();
 
   const { data, isLoading, isError, error, refetch, isFetching } = useCustomers(params);
 
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
+  const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+
+  // Extract unique company options from current result set or available mock data
+  const companyOptions = useMemo(() => {
+    if (!data?.data) return [];
+    const set = new Set<string>();
+    data.data.forEach((c) => {
+      if (c.company) set.add(c.company);
+    });
+    return Array.from(set).sort();
+  }, [data?.data]);
 
   const handleSortChange = (column: NonNullable<CustomerSortState['sortBy']>) => {
     setSorting(column);
@@ -52,9 +68,35 @@ export function CustomerWorkspace() {
         searchQuery={params.search}
         onSearchChange={setSearch}
         totalCount={data?.total ?? 0}
+        activeFilterCount={activeFilterCount}
+        onToggleFilters={() => setIsFiltersOpen(true)}
         isFetching={isFetching}
         onRefresh={() => refetch()}
       />
+
+      {/* Active Filter Chips Bar */}
+      {activeFilterChips.length > 0 && (
+        <div className="flex items-center flex-wrap gap-2 p-3 bg-muted/30 border rounded-lg text-xs">
+          <span className="font-semibold text-muted-foreground mr-1">Active Filters:</span>
+          {activeFilterChips.map((chip) => (
+            <FilterChip
+              key={chip.id}
+              category={chip.category}
+              label={chip.label}
+              onRemove={chip.onRemove}
+            />
+          ))}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={clearFilters}
+            className="h-7 px-2 text-xs text-muted-foreground hover:text-destructive ml-auto gap-1"
+          >
+            <X className="h-3 w-3" />
+            <span>Clear All</span>
+          </Button>
+        </div>
+      )}
 
       {/* Error state */}
       {isError && (
@@ -96,6 +138,24 @@ export function CustomerWorkspace() {
           />
         </div>
       ) : null}
+
+      {/* Advanced Filter Drawer */}
+      <CustomerFilters
+        isOpen={isFiltersOpen}
+        onOpenChange={setIsFiltersOpen}
+        committedFilters={{
+          status: params.status,
+          company: params.company,
+          risk: params.risk,
+          lastContactFrom: params.lastContactFrom,
+          lastContactTo: params.lastContactTo,
+          email: params.email,
+          phone: params.phone,
+        }}
+        onApplyFilters={setFilters}
+        onClearAll={clearFilters}
+        companyOptions={companyOptions}
+      />
     </div>
   );
 }

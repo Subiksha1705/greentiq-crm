@@ -10,6 +10,13 @@ import {
   RiskLevel,
 } from '@/types/customer';
 
+export interface FilterChipItem {
+  id: string;
+  category: string;
+  label: string;
+  onRemove: () => void;
+}
+
 export function useCustomerFilters() {
   const router = useRouter();
   const pathname = usePathname();
@@ -98,7 +105,6 @@ export function useCustomerFilters() {
 
   const setSorting = useCallback(
     (sortBy: CustomerSortState['sortBy'], sortOrder?: CustomerSortState['sortOrder']) => {
-      // Toggle sortOrder if clicking the same sortBy column
       if (sortBy === params.sortBy && !sortOrder) {
         const nextOrder = params.sortOrder === 'asc' ? 'desc' : 'asc';
         updateParams({ sortBy, sortOrder: nextOrder });
@@ -111,7 +117,7 @@ export function useCustomerFilters() {
 
   const setPage = useCallback(
     (page: number) => {
-      updateParams({ page }, false); // page change does not reset page
+      updateParams({ page }, false);
     },
     [updateParams]
   );
@@ -152,6 +158,115 @@ export function useCustomerFilters() {
     });
   }, [updateParams]);
 
+  // Compute active filter count (excluding global search)
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (params.status && params.status.length > 0) count += params.status.length;
+    if (params.company && params.company.length > 0) count += params.company.length;
+    if (params.risk && params.risk.length > 0) count += params.risk.length;
+    if (params.lastContactFrom || params.lastContactTo) count += 1;
+    if (params.email && params.email.trim()) count += 1;
+    if (params.phone && params.phone.trim()) count += 1;
+    return count;
+  }, [params]);
+
+  // Generate active filter chip objects for rendering
+  const activeFilterChips = useMemo<FilterChipItem[]>(() => {
+    const chips: FilterChipItem[] = [];
+
+    // Status chips
+    if (params.status) {
+      params.status.forEach((st) => {
+        chips.push({
+          id: `status-${st}`,
+          category: 'Status',
+          label: st.charAt(0).toUpperCase() + st.slice(1),
+          onRemove: () => {
+            const nextStatus = params.status?.filter((s) => s !== st);
+            updateParams({ status: nextStatus });
+          },
+        });
+      });
+    }
+
+    // Risk chips
+    if (params.risk) {
+      params.risk.forEach((rk) => {
+        chips.push({
+          id: `risk-${rk}`,
+          category: 'Risk',
+          label: `${rk.charAt(0).toUpperCase() + rk.slice(1)} Risk`,
+          onRemove: () => {
+            const nextRisk = params.risk?.filter((r) => r !== rk);
+            updateParams({ risk: nextRisk });
+          },
+        });
+      });
+    }
+
+    // Company chips
+    if (params.company) {
+      params.company.forEach((cmp) => {
+        chips.push({
+          id: `company-${cmp}`,
+          category: 'Company',
+          label: cmp,
+          onRemove: () => {
+            const nextCompany = params.company?.filter((c) => c !== cmp);
+            updateParams({ company: nextCompany });
+          },
+        });
+      });
+    }
+
+    // Date range chip
+    if (params.lastContactFrom || params.lastContactTo) {
+      let dateLabel = '';
+      if (params.lastContactFrom && params.lastContactTo) {
+        dateLabel = `${params.lastContactFrom} to ${params.lastContactTo}`;
+      } else if (params.lastContactFrom) {
+        dateLabel = `From ${params.lastContactFrom}`;
+      } else if (params.lastContactTo) {
+        dateLabel = `Until ${params.lastContactTo}`;
+      }
+
+      chips.push({
+        id: 'date-range',
+        category: 'Last Contact',
+        label: dateLabel,
+        onRemove: () => {
+          updateParams({ lastContactFrom: undefined, lastContactTo: undefined });
+        },
+      });
+    }
+
+    // Email filter chip
+    if (params.email) {
+      chips.push({
+        id: 'email-filter',
+        category: 'Email',
+        label: params.email,
+        onRemove: () => {
+          updateParams({ email: undefined });
+        },
+      });
+    }
+
+    // Phone filter chip
+    if (params.phone) {
+      chips.push({
+        id: 'phone-filter',
+        category: 'Phone',
+        label: params.phone,
+        onRemove: () => {
+          updateParams({ phone: undefined });
+        },
+      });
+    }
+
+    return chips;
+  }, [params, updateParams]);
+
   return {
     params,
     setSearch,
@@ -160,5 +275,7 @@ export function useCustomerFilters() {
     setPageSize,
     setFilters,
     clearFilters,
+    activeFilterCount,
+    activeFilterChips,
   };
 }
