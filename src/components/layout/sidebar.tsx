@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { LayoutDashboard, Users, Leaf, ChevronRight, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { SavedViewsList } from '@/components/customers/saved-views';
 
 interface SidebarProps {
   mobileOpen?: boolean;
@@ -80,7 +81,7 @@ export function Sidebar({ mobileOpen = false, setMobileOpen }: SidebarProps) {
         </div>
 
         {/* Navigation Section */}
-        <div className="flex-1 px-3 py-4 overflow-y-auto space-y-1">
+        <div className="px-3 py-4 space-y-1">
           <div className="px-3 pb-2 text-[11px] font-semibold uppercase tracking-[0.03em] text-[#9CA3AF]">
             Main Navigation
           </div>
@@ -113,6 +114,15 @@ export function Sidebar({ mobileOpen = false, setMobileOpen }: SidebarProps) {
               </Link>
             );
           })}
+        </div>
+
+        <div className="px-6 py-2">
+          <hr className="border-[#E5E7EB]" />
+        </div>
+
+        {/* Saved Views Section */}
+        <div className="flex-1 py-2 overflow-y-auto">
+          <SavedViewsList />
         </div>
 
         {/* Follow-up Risk Engine Sidebar Card */}
