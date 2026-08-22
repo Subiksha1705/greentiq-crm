@@ -9,6 +9,7 @@ import { CustomerFilters } from './customer-filters';
 import { CustomerDetails } from './customer-details';
 import { DataTablePagination } from '@/components/common/data-table-pagination';
 import { LoadingState } from '@/components/common/loading-state';
+import { ErrorState } from '@/components/common/error-state';
 import { FilterChip } from '@/components/common/filter-chip';
 import { CustomerSortState } from '@/types/customer';
 import { AlertCircle, X } from 'lucide-react';
@@ -101,18 +102,11 @@ export function CustomerWorkspace() {
 
       {/* Error state */}
       {isError && (
-        <div className="p-6 border border-destructive/20 rounded-xl bg-destructive/5 text-center space-y-3">
-          <AlertCircle className="h-8 w-8 text-destructive mx-auto" />
-          <h3 className="text-base font-semibold text-foreground">
-            Failed to load customers
-          </h3>
-          <p className="text-sm text-muted-foreground max-w-md mx-auto">
-            {error instanceof Error ? error.message : 'An unexpected error occurred while fetching customer data.'}
-          </p>
-          <Button variant="outline" size="sm" onClick={() => refetch()}>
-            Try again
-          </Button>
-        </div>
+        <ErrorState
+          title="Something went wrong"
+          description="We were unable to load the customer records. Please check your connection and try again."
+          onRetry={() => refetch()}
+        />
       )}
 
       {/* Loading state vs Table */}

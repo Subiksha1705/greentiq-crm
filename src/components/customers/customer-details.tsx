@@ -17,6 +17,7 @@ import { getCalendarDaysDifference } from '@/lib/utils';
 import { DatePicker } from '@/components/ui/date-picker';
 import { Button } from '@/components/ui/button';
 import { LoadingState } from '@/components/common/loading-state';
+import { ErrorState } from '@/components/common/error-state';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Textarea } from '@/components/ui/textarea';
 import {
@@ -248,15 +249,13 @@ export function CustomerDetails({
               <LoadingState variant="detail" />
             </div>
           ) : isError || !customer ? (
-            <div className="p-8 text-center space-y-4 my-auto">
-              <AlertCircle className="h-10 w-10 text-[#EF4444] mx-auto" />
-              <h3 className="text-[18px] font-semibold text-[#1A1D23]">Customer Not Found</h3>
-              <p className="text-[14px] text-[#6B7280]">
-                {error instanceof Error ? error.message : 'Unable to load the requested customer record.'}
-              </p>
-              <Button variant="outline" onClick={onClose}>
-                Close Drawer
-              </Button>
+            <div className="p-8 my-auto">
+              <ErrorState
+                variant="card"
+                title="Something went wrong"
+                description="We were unable to load the customer information. Please try closing the drawer and reopening it."
+                onRetry={onClose}
+              />
             </div>
           ) : (
             <>
