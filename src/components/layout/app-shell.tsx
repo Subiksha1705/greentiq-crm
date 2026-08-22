@@ -10,7 +10,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] text-[#1A1D23] flex font-sans">
+    <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)] flex font-sans transition-colors duration-300">
       <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
       <div className="flex-1 flex flex-col min-w-0 lg:pl-[260px]">

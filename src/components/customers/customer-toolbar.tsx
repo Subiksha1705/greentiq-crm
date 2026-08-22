@@ -45,7 +45,7 @@ export function CustomerToolbar({
           placeholder="Search by name, email, or company..."
         />
         {isFetching && (
-          <RefreshCw className="h-4 w-4 animate-spin text-[#6B7280] shrink-0" />
+          <RefreshCw className="h-4 w-4 animate-spin text-[var(--text-tertiary)] shrink-0" />
         )}
       </div>
 
@@ -57,10 +57,10 @@ export function CustomerToolbar({
             variant="outline"
             size="sm"
             onClick={onImport}
-            className="h-[36px] px-[12px] py-[8px] gap-1.5 text-[14px] font-medium border-[#D1D5DB] bg-white text-[#374151] hover:bg-[#F9FAFB] rounded-[6px] shadow-xs"
+            className="h-[36px] px-[12px] py-[8px] gap-1.5 text-[14px] font-medium border-[var(--border-default)] bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] rounded-[6px] shadow-xs"
             title="Import customers from Excel or CSV file"
           >
-            <UploadCloud className="h-4 w-4 text-[#16A34A]" />
+            <UploadCloud className="h-4 w-4 text-[var(--primary)]" />
             <span>Import</span>
           </Button>
         )}
@@ -71,10 +71,10 @@ export function CustomerToolbar({
             variant="outline"
             size="sm"
             onClick={handleExportClick}
-            className="h-[36px] px-[12px] py-[8px] gap-1.5 text-[14px] font-medium border-[#D1D5DB] bg-white text-[#374151] hover:bg-[#F9FAFB] rounded-[6px] shadow-xs"
+            className="h-[36px] px-[12px] py-[8px] gap-1.5 text-[14px] font-medium border-[var(--border-default)] bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] rounded-[6px] shadow-xs"
             title="Export customers to Excel or CSV"
           >
-            <Download className="h-4 w-4 text-[#4B5563]" />
+            <Download className="h-4 w-4 text-[var(--text-secondary)]" />
             <span>Export</span>
           </Button>
         )}
@@ -84,12 +84,12 @@ export function CustomerToolbar({
           variant="outline"
           size="sm"
           onClick={onToggleFilters}
-          className="h-[36px] px-[16px] py-[8px] gap-2 text-[14px] font-medium border-[#D1D5DB] bg-white text-[#374151] hover:bg-[#F9FAFB] rounded-[6px] shadow-xs"
+          className="h-[36px] px-[16px] py-[8px] gap-2 text-[14px] font-medium border-[var(--border-default)] bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] rounded-[6px] shadow-xs"
         >
-          <SlidersHorizontal className="h-4 w-4 text-[#4B5563]" />
+          <SlidersHorizontal className="h-4 w-4 text-[var(--text-secondary)]" />
           <span>Filters</span>
           {activeFilterCount > 0 && (
-            <Badge className="ml-0.5 px-1.5 py-0.2 text-[11px] font-semibold bg-[#16A34A] text-white rounded-[4px]">
+            <Badge className="ml-0.5 px-1.5 py-0.2 text-[11px] font-semibold bg-[var(--primary)] text-white rounded-[4px]">
               {activeFilterCount}
             </Badge>
           )}
@@ -99,7 +99,7 @@ export function CustomerToolbar({
         <Button
           size="sm"
           onClick={onAddCustomer}
-          className="h-[36px] px-[16px] py-[8px] gap-1.5 text-[14px] font-semibold bg-[#16A34A] hover:bg-[#15803D] active:bg-[#166534] text-white rounded-[6px] shadow-xs"
+          className="h-[36px] px-[16px] py-[8px] gap-1.5 text-[14px] font-semibold bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-active)] text-white rounded-[6px] shadow-xs"
         >
           <Plus className="h-4 w-4" />
           <span>Add Customer</span>

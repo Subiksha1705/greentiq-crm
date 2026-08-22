@@ -27,7 +27,7 @@ export function ErrorState({
     return (
       <div
         className={cn(
-          'flex items-center justify-between p-3 rounded-lg border border-[#FEE2E2] bg-[#FEF2F2] text-[#991B1B] text-sm',
+          'flex items-center justify-between p-3 rounded-lg border border-[var(--accent-red-border)] bg-[var(--accent-red-bg)] text-[var(--risk-high-text)] text-sm',
           className
         )}
       >
@@ -40,7 +40,7 @@ export function ErrorState({
             variant="ghost"
             size="sm"
             onClick={onRetry}
-            className="h-7 px-2 text-xs text-[#991B1B] hover:bg-[#FEE2E2] gap-1"
+            className="h-7 px-2 text-xs text-[var(--risk-high-text)] hover:bg-[var(--accent-red-border)] gap-1"
           >
             <RefreshCw className="h-3 w-3" />
             <span>Retry</span>
@@ -54,23 +54,23 @@ export function ErrorState({
     return (
       <div
         className={cn(
-          'w-full p-8 border border-[#FEE2E2] rounded-xl bg-[#FEF2F2]/50 text-center flex flex-col items-center justify-center gap-3',
+          'w-full p-8 border border-[var(--accent-red-border)] rounded-xl bg-[var(--accent-red-bg)] text-center flex flex-col items-center justify-center gap-3',
           className
         )}
       >
-        <div className="h-10 w-10 rounded-full bg-[#FEE2E2] flex items-center justify-center text-[#EF4444]">
+        <div className="h-10 w-10 rounded-full bg-[var(--risk-high-bg)] flex items-center justify-center text-[var(--destructive)]">
           <AlertCircle className="h-5 w-5" />
         </div>
         <div className="space-y-1 max-w-sm">
-          <h4 className="text-[15px] font-semibold text-[#1A1D23]">{title}</h4>
-          <p className="text-[13px] text-[#6B7280] leading-relaxed">{description}</p>
+          <h4 className="text-[15px] font-semibold text-[var(--text-primary)]">{title}</h4>
+          <p className="text-[13px] text-[var(--text-tertiary)] leading-relaxed">{description}</p>
         </div>
         {onRetry && (
           <Button
             variant="outline"
             size="sm"
             onClick={onRetry}
-            className="mt-1 border-[#D1D5DB] bg-white text-[#374151] hover:bg-[#F9FAFB] text-xs gap-1.5"
+            className="mt-1 border-[var(--border-default)] bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] text-xs gap-1.5"
           >
             <RefreshCw className="h-3.5 w-3.5" />
             <span>Try Again</span>
@@ -84,24 +84,24 @@ export function ErrorState({
   return (
     <div
       className={cn(
-        'w-full min-h-[400px] border border-[#E5E7EB] rounded-2xl bg-white p-12 text-center flex flex-col items-center justify-center gap-4 shadow-xs',
+        'w-full min-h-[400px] border border-[var(--border-default)] rounded-2xl bg-[var(--card)] p-12 text-center flex flex-col items-center justify-center gap-4 shadow-xs',
         className
       )}
     >
-      <div className="h-16 w-16 rounded-2xl bg-[#FEF2F2] border border-[#FEE2E2] flex items-center justify-center text-[#EF4444] shadow-xs">
+      <div className="h-16 w-16 rounded-2xl bg-[var(--accent-red-bg)] border border-[var(--accent-red-border)] flex items-center justify-center text-[var(--destructive)] shadow-xs">
         <AlertCircle className="h-8 w-8" />
       </div>
 
       <div className="space-y-1.5 max-w-md">
-        <h2 className="text-[20px] font-bold text-[#1A1D23] tracking-tight">{title}</h2>
-        <p className="text-[14px] text-[#6B7280] leading-relaxed">{description}</p>
+        <h2 className="text-[20px] font-bold text-[var(--text-primary)] tracking-tight">{title}</h2>
+        <p className="text-[14px] text-[var(--text-tertiary)] leading-relaxed">{description}</p>
       </div>
 
       <div className="flex items-center gap-3 mt-2">
         {onRetry && (
           <Button
             onClick={onRetry}
-            className="bg-[#16A34A] hover:bg-[#15803D] text-white font-semibold text-[14px] gap-2 px-5 shadow-xs"
+            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-[14px] gap-2 px-5 shadow-xs"
           >
             <RefreshCw className="h-4 w-4" />
             <span>Try Again</span>
@@ -112,7 +112,7 @@ export function ErrorState({
           <Button
             asChild
             variant="outline"
-            className="border-[#D1D5DB] text-[#374151] hover:bg-[#F9FAFB] text-[14px]"
+            className="border-[var(--border-default)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] text-[14px]"
           >
             <Link href="/" className="flex items-center gap-2">
               <Home className="h-4 w-4" />

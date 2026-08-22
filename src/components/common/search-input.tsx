@@ -69,7 +69,7 @@ export function SearchInput({
 
   return (
     <div className={cn('relative w-full max-w-sm', className)}>
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF] pointer-events-none" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[var(--text-quaternary)] pointer-events-none" />
       <Input
         type="text"
         value={searchTerm}
@@ -77,17 +77,17 @@ export function SearchInput({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         aria-label="Search customers"
-        className="pl-9 pr-9 h-[36px] text-[14px] leading-[1.5] rounded-[6px] border border-[#D1D5DB] bg-white text-[#1A1D23] placeholder:text-[#9CA3AF] focus-visible:ring-1 focus-visible:ring-[#9CA3AF] focus-visible:border-[#9CA3AF] focus:border-[#9CA3AF] focus:ring-0 focus-visible:outline-none"
+        className="pl-9 pr-9 h-[36px] text-[14px] leading-[1.5] rounded-[6px] border border-[var(--border-default)] bg-[var(--card)] text-[var(--text-primary)] placeholder:text-[var(--text-quaternary)] focus-visible:ring-1 focus-visible:ring-[var(--text-quaternary)] focus-visible:border-[var(--text-quaternary)] focus:border-[var(--text-quaternary)] focus:ring-0 focus-visible:outline-none"
       />
       <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
         {isDebouncing && (
-          <Loader2 className="h-3.5 w-3.5 animate-spin text-[#16A34A]" />
+          <Loader2 className="h-3.5 w-3.5 animate-spin text-[var(--primary)]" />
         )}
         {searchTerm && (
           <button
             type="button"
             onClick={handleClear}
-            className="p-0.5 rounded-full text-[#6B7280] hover:text-[#1A1D23] hover:bg-[#F3F4F6] transition-colors"
+            className="p-0.5 rounded-full text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-tertiary)] transition-colors"
             aria-label="Clear search"
           >
             <X className="h-3.5 w-3.5" />

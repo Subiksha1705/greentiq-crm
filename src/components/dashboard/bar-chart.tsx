@@ -34,12 +34,12 @@ export function BarChart({
     <div className={cn('w-full flex flex-col justify-end space-y-3', className)}>
       {/* Visual Bars Container */}
       <div
-        className="relative w-full flex items-end justify-between gap-3 pt-6 border-b border-[#E5E7EB]"
+        className="relative w-full flex items-end justify-between gap-3 pt-6 border-b border-[var(--border-default)]"
         style={{ height }}
       >
         {/* Subtle Horizontal Reference Grid Lines */}
-        <div className="absolute inset-x-0 top-0 border-b border-dashed border-[#F1F5F9]" />
-        <div className="absolute inset-x-0 top-1/2 border-b border-dashed border-[#F1F5F9]" />
+        <div className="absolute inset-x-0 top-0 border-b border-dashed border-[var(--chart-grid)]" />
+        <div className="absolute inset-x-0 top-1/2 border-b border-dashed border-[var(--chart-grid)]" />
 
         {data.map((item) => {
           const heightRatio = item.value / maxValue;
@@ -61,16 +61,16 @@ export function BarChart({
                   isHovered ? 'scale-110' : 'opacity-80'
                 )}
               >
-                <span className="text-[12px] font-bold text-[#1A1D23] block leading-none">
+                <span className="text-[12px] font-bold text-[var(--text-primary)] block leading-none">
                   {item.value}
                 </span>
-                <span className="text-[10px] text-[#6B7280] font-medium leading-tight">
+                <span className="text-[10px] text-[var(--text-tertiary)] font-medium leading-tight">
                   {item.percentage}%
                 </span>
               </div>
 
               {/* Vertical Bar Element */}
-              <div className="w-full max-w-[48px] bg-[#F1F5F9] rounded-t-[6px] overflow-hidden flex items-end h-full">
+              <div className="w-full max-w-[48px] bg-[var(--chart-bar-bg)] rounded-t-[6px] overflow-hidden flex items-end h-full">
                 <div
                   className={cn(
                     'w-full rounded-t-[6px] transition-all duration-300 shadow-xs',
@@ -95,11 +95,11 @@ export function BarChart({
             className="flex-1 text-center truncate px-0.5"
             title={item.sublabel ? `${item.label} (${item.sublabel})` : item.label}
           >
-            <span className="text-[12px] font-semibold text-[#374151] block truncate">
+            <span className="text-[12px] font-semibold text-[var(--text-secondary)] block truncate">
               {item.label}
             </span>
             {item.sublabel && (
-              <span className="text-[10px] text-[#9CA3AF] block truncate">
+              <span className="text-[10px] text-[var(--text-quaternary)] block truncate">
                 {item.sublabel}
               </span>
             )}

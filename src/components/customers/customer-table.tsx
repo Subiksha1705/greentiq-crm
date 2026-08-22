@@ -55,7 +55,7 @@ function ResizableHeader({ children, className, defaultWidth = 150, ...props }: 
         className="absolute right-0 top-0 bottom-0 w-5 cursor-col-resize flex items-center justify-center group/resizer"
         title="Drag to resize column"
       >
-        <div className="w-[3px] h-6 bg-[#E5E7EB] group-hover/resizer:bg-emerald-500 rounded-full transition-colors" />
+        <div className="w-[3px] h-6 bg-[var(--border-default)] group-hover/resizer:bg-emerald-500 rounded-full transition-colors" />
       </div>
     </TableHead>
   );
@@ -96,22 +96,22 @@ export function CustomerTable({
   ) => {
     const isActive = sortBy === columnKey;
     return (
-      <ResizableHeader className={cn('text-[#1A1D23]', className)} defaultWidth={parseInt(className?.match(/w-\[(\d+)px\]/)?.[1] || '150')}>
+      <ResizableHeader className={cn('text-[var(--text-primary)]', className)} defaultWidth={parseInt(className?.match(/w-\[(\d+)px\]/)?.[1] || '150')}>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => onSortChange(columnKey)}
           className={cn(
-            '-ml-3 h-8 text-[14px] font-semibold hover:bg-[#F3F4F6] text-[#374151]',
-            isActive ? 'text-[#16A34A] font-bold' : 'text-[#374151]'
+            '-ml-3 h-8 text-[14px] font-semibold hover:bg-[var(--surface-tertiary)] text-[var(--text-secondary)]',
+            isActive ? 'text-[var(--primary)] font-bold' : 'text-[var(--text-secondary)]'
           )}
         >
           <span>{label}</span>
           {isActive ? (
             sortOrder === 'asc' ? (
-              <ArrowUp className="ml-1.5 h-3.5 w-3.5 text-[#16A34A]" />
+              <ArrowUp className="ml-1.5 h-3.5 w-3.5 text-[var(--primary)]" />
             ) : (
-              <ArrowDown className="ml-1.5 h-3.5 w-3.5 text-[#16A34A]" />
+              <ArrowDown className="ml-1.5 h-3.5 w-3.5 text-[var(--primary)]" />
             )
           ) : (
             <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
@@ -123,12 +123,12 @@ export function CustomerTable({
 
   if (customers.length === 0) {
     return (
-      <div className="w-full border border-[#E5E7EB] rounded-[12px] p-12 text-center bg-white shadow-[0_1px_2px_rgba(16,24,40,0.05)] flex flex-col items-center justify-center gap-3">
-        <div className="h-12 w-12 rounded-full bg-[#F3F4F6] flex items-center justify-center text-[#6B7280] mb-1">
+      <div className="w-full border border-[var(--border-default)] rounded-[12px] p-12 text-center bg-[var(--card)] shadow-[0_1px_2px_rgba(16,24,40,0.05)] flex flex-col items-center justify-center gap-3">
+        <div className="h-12 w-12 rounded-full bg-[var(--surface-tertiary)] flex items-center justify-center text-[var(--text-tertiary)] mb-1">
           <Users className="h-6 w-6" />
         </div>
-        <h3 className="text-[18px] font-semibold text-[#1A1D23]">No customers found</h3>
-        <p className="text-[14px] text-[#6B7280] max-w-sm">
+        <h3 className="text-[18px] font-semibold text-[var(--text-primary)]">No customers found</h3>
+        <p className="text-[14px] text-[var(--text-tertiary)] max-w-sm">
           No customer records match your current search or active filter combination.
         </p>
         {onClearFilters && (
@@ -136,7 +136,7 @@ export function CustomerTable({
             variant="outline"
             size="sm"
             onClick={onClearFilters}
-            className="mt-2 text-[14px] font-medium border-[#D1D5DB] bg-white text-[#374151] hover:bg-[#F9FAFB] rounded-[6px]"
+            className="mt-2 text-[14px] font-medium border-[var(--border-default)] bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] rounded-[6px]"
           >
             Clear all filters
           </Button>
@@ -146,24 +146,24 @@ export function CustomerTable({
   }
 
   return (
-    <div className="w-full border border-[#E5E7EB] rounded-[8px] overflow-x-auto bg-white shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
+    <div className="w-full border border-[var(--border-default)] rounded-[8px] overflow-x-auto bg-[var(--card)] shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
       <Table className="min-w-max">
-        <TableHeader className="bg-[#F9FAFB]">
-          <TableRow className="hover:bg-[#F9FAFB] border-b border-[#E5E7EB]">
+        <TableHeader className="bg-[var(--surface-secondary)]">
+          <TableRow className="hover:bg-[var(--surface-secondary)] border-b border-[var(--border-default)]">
             {/* Header Select All Checkbox */}
             <TableHead className="w-[44px] px-3 py-2.5 text-center">
               <Checkbox
                 checked={allCurrentPageSelected ? true : someCurrentPageSelected ? 'indeterminate' : false}
                 onCheckedChange={() => onToggleSelectAll?.()}
                 aria-label="Select all customers on page"
-                className="border-[#D1D5DB] data-[state=checked]:bg-[#16A34A] data-[state=checked]:border-[#16A34A]"
+                className="border-[var(--border-strong)] data-[state=checked]:bg-[var(--primary)] data-[state=checked]:border-[var(--primary)]"
               />
             </TableHead>
             {renderSortHeader('Name', 'name', 'w-[220px]')}
             {renderSortHeader('Email', 'email', 'w-[220px]')}
-            <ResizableHeader className="text-[#374151]" defaultWidth={140}>Phone</ResizableHeader>
-            <ResizableHeader className="text-[#374151]" defaultWidth={160}>Company</ResizableHeader>
-            <ResizableHeader className="text-[#374151]" defaultWidth={110}>Status</ResizableHeader>
+            <ResizableHeader className="text-[var(--text-secondary)]" defaultWidth={140}>Phone</ResizableHeader>
+            <ResizableHeader className="text-[var(--text-secondary)]" defaultWidth={160}>Company</ResizableHeader>
+            <ResizableHeader className="text-[var(--text-secondary)]" defaultWidth={110}>Status</ResizableHeader>
             {renderSortHeader('Last Contact', 'lastContactDate', 'w-[150px]')}
             {renderSortHeader('Follow-up Risk', 'followUpRisk', 'w-[150px]')}
           </TableRow>

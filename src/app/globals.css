@@ -42,6 +42,7 @@
 }
 
 @layer base {
+  /* ───────────────────────────────── LIGHT THEME ───────────────────────────────── */
   :root {
     --background: #F9FAFB;
     --foreground: #1A1D23;
@@ -73,6 +74,30 @@
     --input: #D1D5DB;
     --ring: #16A34A;
 
+    /* Extended semantic tokens */
+    --surface-primary: #FFFFFF;
+    --surface-secondary: #F9FAFB;
+    --surface-tertiary: #F3F4F6;
+    --surface-elevated: #FFFFFF;
+    --surface-inset: #F1F5F9;
+    --surface-hover: #FAFAFA;
+
+    --text-primary: #1A1D23;
+    --text-secondary: #4B5563;
+    --text-tertiary: #6B7280;
+    --text-quaternary: #9CA3AF;
+    --text-inverse: #FFFFFF;
+
+    --border-subtle: #F1F5F9;
+    --border-default: #E5E7EB;
+    --border-strong: #D1D5DB;
+
+    /* KPI & Badge Tokens */
+    --badge-default-bg: #F1F5F9;
+    --badge-default-text: #475569;
+    --badge-info-bg: #EFF6FF;
+    --badge-info-text: #1D4ED8;
+
     /* Risk Status Pill Colors per Spec */
     --risk-low-bg: #DCFCE7;
     --risk-low-text: #166534;
@@ -85,6 +110,100 @@
     --risk-high-bg: #FEE2E2;
     --risk-high-text: #991B1B;
     --risk-high-dot: #EF4444;
+
+    /* Accent surfaces */
+    --accent-green-bg: #F0FDF4;
+    --accent-green-border: #DCFCE7;
+    --accent-red-bg: #FEF2F2;
+    --accent-red-border: #FEE2E2;
+    --accent-amber-bg: #FFFBEB;
+    --accent-amber-border: #FEF3C7;
+
+    /* Chart */
+    --chart-grid: #F1F5F9;
+    --chart-bar-bg: #F1F5F9;
+  }
+
+  /* ───────────────────────────────── DARK THEME ───────────────────────────────── */
+  .dark {
+    --background: #0F1117;
+    --foreground: #E5E7EB;
+
+    --card: #1A1D26;
+    --card-foreground: #E5E7EB;
+
+    --popover: #1A1D26;
+    --popover-foreground: #E5E7EB;
+
+    --primary: #22C55E;
+    --primary-hover: #16A34A;
+    --primary-active: #15803D;
+    --primary-foreground: #FFFFFF;
+
+    --secondary: #252830;
+    --secondary-foreground: #D1D5DB;
+
+    --muted: #252830;
+    --muted-foreground: #9CA3AF;
+
+    --accent: #162A1F;
+    --accent-foreground: #22C55E;
+
+    --destructive: #F87171;
+    --destructive-foreground: #FFFFFF;
+
+    --border: #2D3039;
+    --input: #3B3F4A;
+    --ring: #22C55E;
+
+    /* Extended semantic tokens */
+    --surface-primary: #1A1D26;
+    --surface-secondary: #15171E;
+    --surface-tertiary: #252830;
+    --surface-elevated: #21242E;
+    --surface-inset: #15171E;
+    --surface-hover: #21242E;
+
+    --text-primary: #F3F4F6;
+    --text-secondary: #D1D5DB;
+    --text-tertiary: #9CA3AF;
+    --text-quaternary: #6B7280;
+    --text-inverse: #1A1D23;
+
+    --border-subtle: #252830;
+    --border-default: #2D3039;
+    --border-strong: #3B3F4A;
+
+    /* KPI & Badge Tokens */
+    --badge-default-bg: #252830;
+    --badge-default-text: #9CA3AF;
+    --badge-info-bg: #1E293B;
+    --badge-info-text: #60A5FA;
+
+    /* Risk Status Pill Colors – softer for dark */
+    --risk-low-bg: #14532D;
+    --risk-low-text: #86EFAC;
+    --risk-low-dot: #22C55E;
+
+    --risk-medium-bg: #451A03;
+    --risk-medium-text: #FCD34D;
+    --risk-medium-dot: #F59E0B;
+
+    --risk-high-bg: #450A0A;
+    --risk-high-text: #FCA5A5;
+    --risk-high-dot: #EF4444;
+
+    /* Accent surfaces */
+    --accent-green-bg: #14532D;
+    --accent-green-border: #166534;
+    --accent-red-bg: #450A0A;
+    --accent-red-border: #7F1D1D;
+    --accent-amber-bg: #451A03;
+    --accent-amber-border: #78350F;
+
+    /* Chart */
+    --chart-grid: #252830;
+    --chart-bar-bg: #252830;
   }
 }
 

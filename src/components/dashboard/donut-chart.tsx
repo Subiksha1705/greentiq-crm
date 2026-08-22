@@ -48,7 +48,7 @@ export function DonutChart({
             cy={size / 2}
             r={radius}
             fill="transparent"
-            stroke="#F1F5F9"
+            stroke="var(--surface-inset)"
             strokeWidth={strokeWidth}
           />
           {total > 0 &&
@@ -82,14 +82,14 @@ export function DonutChart({
 
         {/* Center Label */}
         <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none text-center">
-          <span className="text-[22px] font-bold text-[#1A1D23] leading-none">
+          <span className="text-[22px] font-bold text-[var(--text-primary)] leading-none">
             {hoveredSegment ? hoveredSegment.value : total}
           </span>
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-[#6B7280] mt-1">
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-[var(--text-tertiary)] mt-1">
             {hoveredSegment ? hoveredSegment.label : totalLabel}
           </span>
           {hoveredSegment && total > 0 && (
-            <span className="text-[10px] text-[#16A34A] font-bold mt-0.5">
+            <span className="text-[10px] text-[var(--primary)] font-bold mt-0.5">
               {Math.round((hoveredSegment.value / total) * 100)}%
             </span>
           )}
@@ -107,7 +107,7 @@ export function DonutChart({
               key={segment.id}
               className={cn(
                 'flex items-center justify-between p-2 rounded-lg transition-colors cursor-pointer border border-transparent',
-                isHovered ? 'bg-[#F9FAFB] border-[#E5E7EB]' : 'hover:bg-[#FAFAFA]'
+                isHovered ? 'bg-[var(--surface-secondary)] border-[var(--border-default)]' : 'hover:bg-[var(--surface-hover)]'
               )}
               onMouseEnter={() => setHoveredId(segment.id)}
               onMouseLeave={() => setHoveredId(null)}
@@ -118,15 +118,15 @@ export function DonutChart({
                   className="h-3 w-3 rounded-full shrink-0 shadow-2xs"
                   style={{ backgroundColor: segment.color }}
                 />
-                <span className="text-[13px] font-medium text-[#374151]">
+                <span className="text-[13px] font-medium text-[var(--text-secondary)]">
                   {segment.label}
                 </span>
               </div>
               <div className="flex items-center gap-3">
-                <span className="text-[13px] font-bold text-[#1A1D23]">
+                <span className="text-[13px] font-bold text-[var(--text-primary)]">
                   {segment.value}
                 </span>
-                <span className="text-[11px] font-semibold text-[#6B7280] w-10 text-right">
+                <span className="text-[11px] font-semibold text-[var(--text-tertiary)] w-10 text-right">
                   {percent}%
                 </span>
               </div>

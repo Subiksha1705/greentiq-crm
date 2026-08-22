@@ -4,16 +4,16 @@ import { cva, type VariantProps } from 'class-variance-authority';
 import { cn } from '@/lib/utils';
 
 const buttonVariants = cva(
-  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-emerald-500 disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer',
+  'inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-xl text-sm font-medium transition-colors focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-[var(--ring)] disabled:pointer-events-none disabled:opacity-50 [&_svg]:pointer-events-none [&_svg]:size-4 [&_svg]:shrink-0 cursor-pointer',
   {
     variants: {
       variant: {
-        default: 'bg-emerald-600 text-white shadow-xs hover:bg-emerald-700 active:bg-emerald-800',
-        destructive: 'bg-rose-600 text-white shadow-xs hover:bg-rose-700 active:bg-rose-800',
-        outline: 'border border-slate-200 bg-white shadow-2xs hover:bg-slate-100 text-slate-700',
-        secondary: 'bg-slate-100 text-slate-900 hover:bg-slate-200/80',
-        ghost: 'hover:bg-slate-100 text-slate-700',
-        link: 'text-emerald-600 underline-offset-4 hover:underline',
+        default: 'bg-[var(--primary)] text-[var(--primary-foreground)] shadow-xs hover:bg-[var(--primary-hover)] active:bg-[var(--primary-active)]',
+        destructive: 'bg-[var(--destructive)] text-[var(--destructive-foreground)] shadow-xs hover:brightness-110 active:brightness-90',
+        outline: 'border border-[var(--border-default)] bg-[var(--card)] shadow-2xs hover:bg-[var(--surface-tertiary)] text-[var(--text-secondary)]',
+        secondary: 'bg-[var(--secondary)] text-[var(--secondary-foreground)] hover:brightness-95',
+        ghost: 'hover:bg-[var(--surface-tertiary)] text-[var(--text-secondary)]',
+        link: 'text-[var(--primary)] underline-offset-4 hover:underline',
       },
       size: {
         default: 'h-9 px-4 py-2',

@@ -51,12 +51,12 @@ export function CustomerRow({
   return (
     <TableRow
       onClick={() => onSelectCustomer?.(customer.id)}
-      className={`cursor-pointer group border-b border-[#F1F5F9] transition-colors ${
+      className={`cursor-pointer group border-b border-[var(--border-subtle)] transition-colors ${
         isRowChecked
-          ? 'bg-[#F0FDF4]'
+          ? 'bg-[var(--accent)]'
           : isSelected
-          ? 'bg-[#F0FDF4] border-l-2 border-l-[#16A34A]'
-          : 'bg-white hover:bg-[#FAFAFA]'
+          ? 'bg-[var(--accent)] border-l-2 border-l-[var(--primary)]'
+          : 'bg-[var(--card)] hover:bg-[var(--surface-hover)]'
       }`}
     >
       {/* Checkbox Column */}
@@ -65,14 +65,14 @@ export function CustomerRow({
           checked={isRowChecked}
           onCheckedChange={() => onToggleCheck?.(customer.id)}
           aria-label={`Select ${customer.name}`}
-          className="border-[#D1D5DB] data-[state=checked]:bg-[#16A34A] data-[state=checked]:border-[#16A34A]"
+          className="border-[var(--border-strong)] data-[state=checked]:bg-[var(--primary)] data-[state=checked]:border-[var(--primary)]"
         />
       </TableCell>
 
       {/* Name */}
-      <TableCell className="px-4 py-3 text-[14px] font-medium text-[#1A1D23]">
+      <TableCell className="px-4 py-3 text-[14px] font-medium text-[var(--text-primary)]">
         <div className="flex items-center gap-3">
-          <div className="h-8 w-8 rounded-full bg-[#F3F4F6] text-[#374151] font-semibold flex items-center justify-center text-[12px] shrink-0 border border-[#E5E7EB]">
+          <div className="h-8 w-8 rounded-full bg-[var(--surface-tertiary)] text-[var(--text-secondary)] font-semibold flex items-center justify-center text-[12px] shrink-0 border border-[var(--border-default)]">
             {customer.name
               .split(' ')
               .map((n) => n[0])
@@ -80,24 +80,24 @@ export function CustomerRow({
               .substring(0, 2)
               .toUpperCase()}
           </div>
-          <span className="group-hover:text-[#16A34A] transition-colors font-semibold text-[14px]">
+          <span className="group-hover:text-[var(--primary)] transition-colors font-semibold text-[14px]">
             {customer.name}
           </span>
         </div>
       </TableCell>
 
       {/* Email */}
-      <TableCell className="px-4 py-3 text-[14px] font-normal text-[#4B5563] font-mono text-[13px]">
+      <TableCell className="px-4 py-3 text-[14px] font-normal text-[var(--text-secondary)] font-mono text-[13px]">
         {customer.email}
       </TableCell>
 
       {/* Phone */}
-      <TableCell className="px-4 py-3 text-[14px] font-normal text-[#4B5563] font-mono text-[13px]">
+      <TableCell className="px-4 py-3 text-[14px] font-normal text-[var(--text-secondary)] font-mono text-[13px]">
         {customer.phone}
       </TableCell>
 
       {/* Company */}
-      <TableCell className="px-4 py-3 text-[14px] font-medium text-[#1A1D23]">
+      <TableCell className="px-4 py-3 text-[14px] font-medium text-[var(--text-primary)]">
         {customer.company}
       </TableCell>
 
@@ -109,8 +109,8 @@ export function CustomerRow({
       {/* Last Contact */}
       <TableCell className="px-4 py-3 text-[14px]">
         <div className="flex flex-col">
-          <span className="font-medium text-[#1A1D23] text-[13px]">{dateFormatted}</span>
-          <span className="text-[12px] text-[#6B7280] font-normal">{dateRelative}</span>
+          <span className="font-medium text-[var(--text-primary)] text-[13px]">{dateFormatted}</span>
+          <span className="text-[12px] text-[var(--text-tertiary)] font-normal">{dateRelative}</span>
         </div>
       </TableCell>
 
