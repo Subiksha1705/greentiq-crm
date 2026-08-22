@@ -45,15 +45,15 @@ export function ConfirmDialog({
         <DialogHeader>
           <div className="flex items-center gap-3">
             {variant === 'destructive' && (
-              <div className="h-9 w-9 rounded-full bg-[#FEE2E2] flex items-center justify-center text-[#EF4444] shrink-0">
+              <div className="h-9 w-9 rounded-full bg-[var(--risk-high-bg)] flex items-center justify-center text-[var(--destructive)] shrink-0">
                 <AlertTriangle className="h-5 w-5" />
               </div>
             )}
-            <DialogTitle className="text-[17px] font-bold text-[#1A1D23]">
+            <DialogTitle className="text-[17px] font-bold text-[var(--text-primary)]">
               {title}
             </DialogTitle>
           </div>
-          <DialogDescription className="text-[13px] text-[#6B7280] pt-2 leading-relaxed">
+          <DialogDescription className="text-[13px] text-[var(--text-tertiary)] pt-2 leading-relaxed">
             {description}
           </DialogDescription>
         </DialogHeader>
@@ -63,7 +63,7 @@ export function ConfirmDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isPending}
-            className="text-[13px] border-[#D1D5DB]"
+            className="text-[13px] border-[var(--border-default)]"
           >
             {cancelLabel}
           </Button>
@@ -74,8 +74,8 @@ export function ConfirmDialog({
             disabled={isPending}
             className={
               variant === 'destructive'
-                ? 'bg-[#EF4444] hover:bg-[#DC2626] text-white text-[13px] font-semibold'
-                : 'bg-[#16A34A] hover:bg-[#15803D] text-white text-[13px] font-semibold'
+                ? 'bg-[var(--destructive)] hover:brightness-110 text-white text-[13px] font-semibold'
+                : 'bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-[13px] font-semibold'
             }
           >
             {isPending ? (

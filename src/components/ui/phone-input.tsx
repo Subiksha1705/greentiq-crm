@@ -98,7 +98,7 @@ export function PhoneInput({
         onValueChange={handleCountryChange}
         disabled={disabled}
       >
-        <SelectTrigger className="w-[110px] h-9 shrink-0 text-[13px] border-[#D1D5DB] bg-white px-2.5">
+        <SelectTrigger className="w-[110px] h-9 shrink-0 text-[13px] border-[var(--border-default)] bg-[var(--card)] text-[var(--text-primary)] px-2.5">
           <SelectValue>
             <span className="flex items-center gap-1.5 font-medium">
               <span className="text-base leading-none">{selectedCountry.flag}</span>
@@ -111,8 +111,8 @@ export function PhoneInput({
             <SelectItem key={c.code} value={c.code} className="text-[13px]">
               <div className="flex items-center gap-2">
                 <span className="text-base leading-none">{c.flag}</span>
-                <span className="font-medium text-[#1A1D23]">{c.name}</span>
-                <span className="text-[#6B7280] font-mono text-[12px] ml-auto">{c.dialCode}</span>
+                <span className="font-medium text-[var(--text-primary)]">{c.name}</span>
+                <span className="text-[var(--text-tertiary)] font-mono text-[12px] ml-auto">{c.dialCode}</span>
               </div>
             </SelectItem>
           ))}
@@ -126,7 +126,7 @@ export function PhoneInput({
         onChange={handleNumberChange}
         placeholder={selectedCountry.placeholder}
         disabled={disabled}
-        className="h-9 text-[14px] border-[#D1D5DB] flex-1 font-mono focus-visible:ring-[#16A34A]"
+        className="h-9 text-[14px] border-[var(--border-default)] flex-1 font-mono focus-visible:ring-[var(--primary)]"
       />
     </div>
   );

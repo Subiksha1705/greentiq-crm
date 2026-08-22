@@ -220,14 +220,14 @@ export function CustomerDetails({
   const getInteractionIcon = (type: string) => {
     switch (type) {
       case 'call':
-        return <PhoneCall className="h-3.5 w-3.5 text-[#16A34A]" />;
+        return <PhoneCall className="h-3.5 w-3.5 text-[var(--primary)]" />;
       case 'email':
-        return <Mail className="h-3.5 w-3.5 text-[#2563EB]" />;
+        return <Mail className="h-3.5 w-3.5 text-[var(--badge-info-text)]" />;
       case 'meeting':
-        return <Users className="h-3.5 w-3.5 text-[#9333EA]" />;
+        return <Users className="h-3.5 w-3.5 text-[#A855F7]" />;
       case 'note':
       default:
-        return <FileText className="h-3.5 w-3.5 text-[#D97706]" />;
+        return <FileText className="h-3.5 w-3.5 text-[var(--risk-medium-text)]" />;
     }
   };
 
@@ -236,15 +236,15 @@ export function CustomerDetails({
       <Sheet open={isOpen} onOpenChange={(open) => !open && onClose()}>
         <SheetContent
           side="right"
-          className="w-full sm:max-w-xl flex flex-col h-full bg-white text-[#1A1D23] p-0 overflow-hidden shadow-2xl border-l border-[#E5E7EB]"
+          className="w-full sm:max-w-xl flex flex-col h-full bg-[var(--card)] text-[var(--foreground)] p-0 overflow-hidden shadow-2xl border-l border-[var(--border-default)]"
         >
           {isLoading ? (
             <div className="p-6">
               <SheetHeader className="pb-4">
-                <SheetTitle className="text-[18px] font-semibold text-[#1A1D23]">
+                <SheetTitle className="text-[18px] font-semibold text-[var(--text-primary)]">
                   Customer Details
                 </SheetTitle>
-                <SheetDescription className="text-[13px] text-[#6B7280]">
+                <SheetDescription className="text-[13px] text-[var(--text-tertiary)]">
                   Loading customer information...
                 </SheetDescription>
               </SheetHeader>
@@ -262,11 +262,11 @@ export function CustomerDetails({
           ) : (
             <>
               {/* Drawer Header */}
-              <div className="p-6 border-b border-[#E5E7EB] bg-[#F9FAFB]">
+              <div className="p-6 border-b border-[var(--border-default)] bg-[var(--surface-secondary)]">
                 <div className="flex items-start justify-between gap-4">
                   <div className="flex items-center gap-4">
-                    <Avatar className="h-14 w-14 border border-[#E5E7EB] shadow-xs">
-                      <AvatarFallback className="bg-[#16A34A] text-white font-bold text-[18px]">
+                    <Avatar className="h-14 w-14 border border-[var(--border-default)] shadow-xs">
+                      <AvatarFallback className="bg-[var(--primary)] text-white font-bold text-[18px]">
                         {customer.name
                           .split(' ')
                           .map((n) => n[0])
@@ -276,15 +276,15 @@ export function CustomerDetails({
                       </AvatarFallback>
                     </Avatar>
                     <div>
-                      <h2 className="text-[20px] font-bold text-[#1A1D23] leading-tight">
+                      <h2 className="text-[20px] font-bold text-[var(--text-primary)] leading-tight">
                         {customer.name}
                       </h2>
                       <div className="flex items-center gap-2 mt-1">
-                        <span className="text-[14px] text-[#4B5563] font-medium flex items-center gap-1">
-                          <Building2 className="h-3.5 w-3.5 text-[#9CA3AF]" />
+                        <span className="text-[14px] text-[var(--text-secondary)] font-medium flex items-center gap-1">
+                          <Building2 className="h-3.5 w-3.5 text-[var(--text-quaternary)]" />
                           {customer.company}
                         </span>
-                        <span className="text-[#D1D5DB]">•</span>
+                        <span className="text-[var(--border-strong)]">•</span>
                         <StatusBadge status={customer.status} />
                       </div>
                     </div>
@@ -307,27 +307,27 @@ export function CustomerDetails({
                   })();
 
                   return (
-                    <div className="p-4 rounded-[10px] border border-[#E5E7EB] bg-[#FFFFFF] shadow-xs space-y-3">
+                    <div className="p-4 rounded-[10px] border border-[var(--border-default)] bg-[var(--card)] shadow-xs space-y-3">
                       <div className="flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          <Clock className="h-4 w-4 text-[#6B7280]" />
-                          <span className="text-[12px] font-semibold uppercase tracking-[0.03em] text-[#6B7280]">
+                          <Clock className="h-4 w-4 text-[var(--text-tertiary)]" />
+                          <span className="text-[12px] font-semibold uppercase tracking-[0.03em] text-[var(--text-tertiary)]">
                             Follow-up Risk Assessment
                           </span>
                         </div>
                         <FollowUpRiskBadge risk={derivedRisk} />
                       </div>
 
-                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[#F3F4F6]">
+                      <div className="grid grid-cols-2 gap-3 pt-2 border-t border-[var(--border-subtle)]">
                         <div>
-                          <span className="text-[11px] font-medium text-[#6B7280]">Last Contacted</span>
-                          <p className="text-[14px] font-semibold text-[#1A1D23] mt-0.5">
+                          <span className="text-[11px] font-medium text-[var(--text-tertiary)]">Last Contacted</span>
+                          <p className="text-[14px] font-semibold text-[var(--text-primary)] mt-0.5">
                             {formattedDate}
                           </p>
                         </div>
                         <div>
-                          <span className="text-[11px] font-medium text-[#6B7280]">Recency</span>
-                          <p className="text-[14px] font-semibold text-[#1A1D23] mt-0.5">
+                          <span className="text-[11px] font-medium text-[var(--text-tertiary)]">Recency</span>
+                          <p className="text-[14px] font-semibold text-[var(--text-primary)] mt-0.5">
                             {daysDiff === 0 ? 'Today' : daysDiff === 1 ? '1 day ago' : `${daysDiff} days ago`}
                           </p>
                         </div>
@@ -337,16 +337,16 @@ export function CustomerDetails({
                 })()}
 
                 {/* Update Last Contact Section */}
-                <div className="p-5 rounded-[10px] border border-[#DCFCE7] bg-[#F0FDF4] space-y-3">
+                <div className="p-5 rounded-[10px] border border-[var(--accent-green-border)] bg-[var(--accent-green-bg)] space-y-3">
                   <div className="flex items-center gap-2">
-                    <div className="h-7 w-7 rounded-full bg-[#16A34A] text-white flex items-center justify-center">
+                    <div className="h-7 w-7 rounded-full bg-[var(--primary)] text-white flex items-center justify-center">
                       <RefreshCw className="h-4 w-4" />
                     </div>
                     <div>
-                      <h3 className="text-[14px] font-bold text-[#166534]">
+                      <h3 className="text-[14px] font-bold text-[var(--risk-low-text)]">
                         Update Last Contact
                       </h3>
-                      <p className="text-[12px] text-[#15803D]">
+                      <p className="text-[12px] text-[var(--risk-low-text)] opacity-80">
                         Defaults to today. Future dates are disabled.
                       </p>
                     </div>
@@ -354,19 +354,19 @@ export function CustomerDetails({
 
                   <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 pt-2">
                     <div className="flex-1">
-                      <DatePicker
+                       <DatePicker
                         date={selectedContactDate}
                         onSelect={(d) => d && setSelectedContactDate(d)}
                         toDate={new Date()}
                         disabled={(d) => d > new Date()}
-                        className="bg-white text-[14px] h-9"
+                        className="bg-[var(--card)] text-[var(--text-primary)] border-[var(--border-default)] text-[14px] h-9"
                       />
                     </div>
                     <Button
                       type="button"
                       onClick={handleUpdateLastContact}
                       disabled={updateCustomerMutation.isPending}
-                      className="bg-[#16A34A] hover:bg-[#15803D] text-white font-semibold text-[14px] h-9 px-4 shrink-0 shadow-xs"
+                      className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-[14px] h-9 px-4 shrink-0 shadow-xs"
                     >
                       {updateCustomerMutation.isPending ? (
                         <span className="flex items-center gap-1.5">
@@ -382,20 +382,20 @@ export function CustomerDetails({
 
                 {/* Contact Information (Fully displayed, clickable mailto & tel) */}
                 <div className="space-y-3">
-                  <h4 className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[#6B7280]">
+                  <h4 className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-tertiary)]">
                     Contact Information
                   </h4>
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     {/* Email Block */}
-                    <div className="p-3 rounded-[8px] border border-[#E5E7EB] bg-[#F9FAFB] space-y-1">
-                      <div className="flex items-center justify-between text-[12px] text-[#6B7280]">
+                    <div className="p-3 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-secondary)] space-y-1">
+                      <div className="flex items-center justify-between text-[12px] text-[var(--text-tertiary)]">
                         <div className="flex items-center gap-1.5">
                           <Mail className="h-3.5 w-3.5" />
                           <span>Email</span>
                         </div>
                         <a
                           href={`mailto:${customer.email}`}
-                          className="text-[#16A34A] hover:text-[#15803D] inline-flex items-center gap-0.5 text-[11px] font-medium"
+                          className="text-[var(--primary)] hover:text-[var(--primary-hover)] inline-flex items-center gap-0.5 text-[11px] font-medium"
                           title="Open in mail client"
                         >
                           <span>Email</span>
@@ -404,22 +404,22 @@ export function CustomerDetails({
                       </div>
                       <a
                         href={`mailto:${customer.email}`}
-                        className="text-[13px] font-medium text-[#1A1D23] hover:text-[#16A34A] hover:underline break-all font-mono block transition-colors"
+                        className="text-[13px] font-medium text-[var(--text-primary)] hover:text-[var(--primary)] hover:underline break-all font-mono block transition-colors"
                       >
                         {customer.email}
                       </a>
                     </div>
 
                     {/* Phone Block */}
-                    <div className="p-3 rounded-[8px] border border-[#E5E7EB] bg-[#F9FAFB] space-y-1">
-                      <div className="flex items-center justify-between text-[12px] text-[#6B7280]">
+                    <div className="p-3 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-secondary)] space-y-1">
+                      <div className="flex items-center justify-between text-[12px] text-[var(--text-tertiary)]">
                         <div className="flex items-center gap-1.5">
                           <Phone className="h-3.5 w-3.5" />
                           <span>Phone</span>
                         </div>
                         <a
                           href={`tel:${customer.phone}`}
-                          className="text-[#16A34A] hover:text-[#15803D] inline-flex items-center gap-0.5 text-[11px] font-medium"
+                          className="text-[var(--primary)] hover:text-[var(--primary-hover)] inline-flex items-center gap-0.5 text-[11px] font-medium"
                           title="Call phone number"
                         >
                           <span>Call</span>
@@ -428,7 +428,7 @@ export function CustomerDetails({
                       </div>
                       <a
                         href={`tel:${customer.phone}`}
-                        className="text-[13px] font-medium text-[#1A1D23] hover:text-[#16A34A] hover:underline break-all font-mono block transition-colors"
+                        className="text-[13px] font-medium text-[var(--text-primary)] hover:text-[var(--primary)] hover:underline break-all font-mono block transition-colors"
                       >
                         {customer.phone}
                       </a>
@@ -439,7 +439,7 @@ export function CustomerDetails({
                 {/* Notes (CRUD enabled) */}
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[#6B7280]">
+                    <h4 className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-tertiary)]">
                       Notes
                     </h4>
                     {!isEditingNotes ? (
@@ -449,7 +449,7 @@ export function CustomerDetails({
                             type="button"
                             onClick={handleClearNotes}
                             disabled={updateCustomerMutation.isPending}
-                            className="text-[11px] text-[#EF4444] hover:underline inline-flex items-center gap-1"
+                            className="text-[11px] text-[var(--destructive)] hover:underline inline-flex items-center gap-1"
                           >
                             <Trash2 className="h-3 w-3" />
                             <span>Clear</span>
@@ -461,7 +461,7 @@ export function CustomerDetails({
                             setDraftNotes(customer.notes || '');
                             setIsEditingNotes(true);
                           }}
-                          className="text-[11px] text-[#16A34A] hover:underline inline-flex items-center gap-1 font-medium"
+                          className="text-[11px] text-[var(--primary)] hover:underline inline-flex items-center gap-1 font-medium"
                         >
                           <Pencil className="h-3 w-3" />
                           <span>{customer.notes ? 'Edit' : 'Add Note'}</span>
@@ -472,7 +472,7 @@ export function CustomerDetails({
                         <button
                           type="button"
                           onClick={() => setIsEditingNotes(false)}
-                          className="text-[11px] text-[#6B7280] hover:underline inline-flex items-center gap-1"
+                          className="text-[11px] text-[var(--text-tertiary)] hover:underline inline-flex items-center gap-1"
                         >
                           <X className="h-3 w-3" />
                           <span>Cancel</span>
@@ -481,7 +481,7 @@ export function CustomerDetails({
                           type="button"
                           onClick={handleSaveNotes}
                           disabled={updateCustomerMutation.isPending}
-                          className="text-[11px] text-[#16A34A] font-semibold hover:underline inline-flex items-center gap-1"
+                          className="text-[11px] text-[var(--primary)] font-semibold hover:underline inline-flex items-center gap-1"
                         >
                           <Check className="h-3 w-3" />
                           <span>Save</span>
@@ -496,7 +496,7 @@ export function CustomerDetails({
                         value={draftNotes}
                         onChange={(e) => setDraftNotes(e.target.value)}
                         placeholder="Add customer notes, preferences, or account context..."
-                        className="text-[13px] bg-white border-[#D1D5DB] min-h-[90px]"
+                        className="text-[13px] bg-[var(--card)] text-[var(--text-primary)] border-[var(--border-default)] min-h-[90px]"
                         autoFocus
                       />
                       <div className="flex justify-end gap-2">
@@ -512,14 +512,14 @@ export function CustomerDetails({
                           size="sm"
                           onClick={handleSaveNotes}
                           disabled={updateCustomerMutation.isPending}
-                          className="h-8 text-xs bg-[#16A34A] hover:bg-[#15803D] text-white"
+                          className="h-8 text-xs bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white"
                         >
                           Save Note
                         </Button>
                       </div>
                     </div>
                   ) : customer.notes ? (
-                    <div className="p-3.5 rounded-[8px] border border-[#E5E7EB] bg-[#F9FAFB] text-[13px] text-[#374151] leading-relaxed whitespace-pre-wrap">
+                    <div className="p-3.5 rounded-[8px] border border-[var(--border-default)] bg-[var(--surface-secondary)] text-[13px] text-[var(--text-secondary)] leading-relaxed whitespace-pre-wrap">
                       {customer.notes}
                     </div>
                   ) : (
@@ -528,7 +528,7 @@ export function CustomerDetails({
                         setDraftNotes('');
                         setIsEditingNotes(true);
                       }}
-                      className="p-3.5 rounded-[8px] border border-dashed border-[#E5E7EB] bg-[#F9FAFB] text-[13px] text-[#9CA3AF] cursor-pointer hover:border-[#16A34A] hover:text-[#16A34A] transition-colors flex items-center justify-center gap-1.5"
+                      className="p-3.5 rounded-[8px] border border-dashed border-[var(--border-default)] bg-[var(--surface-secondary)] text-[13px] text-[var(--text-quaternary)] cursor-pointer hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors flex items-center justify-center gap-1.5"
                     >
                       <Plus className="h-4 w-4" />
                       <span>Click to add customer notes</span>
@@ -539,7 +539,7 @@ export function CustomerDetails({
                 {/* Interaction History (CRUD enabled) */}
                 <div className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h4 className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[#6B7280]">
+                    <h4 className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-tertiary)]">
                       Interaction History ({customer.interactions?.length || 0})
                     </h4>
                     <Button
@@ -547,7 +547,7 @@ export function CustomerDetails({
                       variant="outline"
                       size="sm"
                       onClick={handleOpenAddInteraction}
-                      className="h-7 text-xs border-[#D1D5DB] text-[#16A34A] hover:bg-[#F0FDF4] hover:text-[#166534] gap-1 px-2.5 font-medium"
+                      className="h-7 text-xs border-[var(--border-default)] text-[var(--primary)] hover:bg-[var(--accent)] hover:text-[var(--risk-low-text)] gap-1 px-2.5 font-medium"
                     >
                       <Plus className="h-3.5 w-3.5" />
                       <span>Log Interaction</span>
@@ -557,11 +557,11 @@ export function CustomerDetails({
                   {!customer.interactions || customer.interactions.length === 0 ? (
                     <div
                       onClick={handleOpenAddInteraction}
-                      className="p-6 border border-dashed border-[#E5E7EB] rounded-[8px] text-center text-[13px] text-[#9CA3AF] cursor-pointer hover:border-[#16A34A] hover:text-[#16A34A] transition-colors space-y-1"
+                      className="p-6 border border-dashed border-[var(--border-default)] rounded-[8px] text-center text-[13px] text-[var(--text-quaternary)] cursor-pointer hover:border-[var(--primary)] hover:text-[var(--primary)] transition-colors space-y-1"
                     >
-                      <MessageSquare className="h-6 w-6 mx-auto text-[#9CA3AF]" />
+                      <MessageSquare className="h-6 w-6 mx-auto text-[var(--text-quaternary)]" />
                       <p className="font-medium">No interaction logs yet</p>
-                      <p className="text-[12px] text-[#6B7280]">Click to record a call, email, or meeting</p>
+                      <p className="text-[12px] text-[var(--text-tertiary)]">Click to record a call, email, or meeting</p>
                     </div>
                   ) : (
                     <div className="space-y-2.5">
@@ -579,26 +579,26 @@ export function CustomerDetails({
                           return (
                             <div
                               key={interaction.id}
-                              className="p-3 rounded-[8px] border border-[#E5E7EB] bg-white shadow-2xs space-y-1.5 group hover:border-[#CBD5E1] transition-all"
+                              className="p-3 rounded-[8px] border border-[var(--border-default)] bg-[var(--card)] shadow-2xs space-y-1.5 group hover:border-[var(--text-tertiary)] transition-all"
                             >
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-2">
-                                  <div className="p-1 rounded bg-[#F3F4F6]">
+                                  <div className="p-1 rounded bg-[var(--surface-tertiary)]">
                                     {getInteractionIcon(interaction.type)}
                                   </div>
-                                  <span className="text-[12px] font-semibold uppercase text-[#374151]">
+                                  <span className="text-[12px] font-semibold uppercase text-[var(--text-secondary)]">
                                     {interaction.type}
                                   </span>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                  <span className="text-[11px] text-[#6B7280]">
+                                  <span className="text-[11px] text-[var(--text-tertiary)]">
                                     {formattedDate}
                                   </span>
                                   <div className="opacity-0 group-hover:opacity-100 flex items-center gap-1 transition-opacity">
                                     <button
                                       type="button"
                                       onClick={() => handleOpenEditInteraction(interaction)}
-                                      className="p-1 text-[#6B7280] hover:text-[#16A34A] rounded hover:bg-[#F3F4F6]"
+                                      className="p-1 text-[var(--text-tertiary)] hover:text-[var(--primary)] rounded hover:bg-[var(--surface-tertiary)]"
                                       title="Edit interaction"
                                     >
                                       <Pencil className="h-3.5 w-3.5" />
@@ -606,7 +606,7 @@ export function CustomerDetails({
                                     <button
                                       type="button"
                                       onClick={() => handleDeleteInteraction(interaction.id)}
-                                      className="p-1 text-[#6B7280] hover:text-[#EF4444] rounded hover:bg-[#FEE2E2]"
+                                      className="p-1 text-[var(--text-tertiary)] hover:text-[var(--destructive)] rounded hover:bg-[var(--accent-red-bg)]"
                                       title="Delete interaction"
                                     >
                                       <Trash2 className="h-3.5 w-3.5" />
@@ -614,7 +614,7 @@ export function CustomerDetails({
                                   </div>
                                 </div>
                               </div>
-                              <p className="text-[13px] text-[#4B5563] pl-7 leading-relaxed">
+                              <p className="text-[13px] text-[var(--text-secondary)] pl-7 leading-relaxed">
                                 {interaction.summary}
                               </p>
                             </div>
@@ -626,14 +626,14 @@ export function CustomerDetails({
               </div>
 
               {/* Footer Actions */}
-              <div className="p-4 border-t border-[#E5E7EB] bg-[#F9FAFB] flex items-center justify-between">
+              <div className="p-4 border-t border-[var(--border-default)] bg-[var(--surface-secondary)] flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   {onDelete && (
                     <Button
                       variant="outline"
                       size="sm"
                       onClick={() => onDelete(customer.id)}
-                      className="text-[13px] text-[#EF4444] border-[#FEE2E2] hover:bg-[#FEF2F2] hover:text-[#DC2626] gap-1.5"
+                      className="text-[13px] text-[var(--destructive)] border-[var(--accent-red-border)] hover:bg-[var(--accent-red-bg)] hover:brightness-105 gap-1.5"
                     >
                       <Trash2 className="h-3.5 w-3.5" />
                       <span>Delete</span>
@@ -644,9 +644,9 @@ export function CustomerDetails({
                       variant="outline"
                       size="sm"
                       onClick={() => onEdit(customer.id)}
-                      className="text-[13px] text-[#374151] border-[#D1D5DB] hover:bg-white gap-1.5"
+                      className="text-[13px] text-[var(--text-secondary)] border-[var(--border-default)] hover:bg-[var(--surface-secondary)] gap-1.5"
                     >
-                      <Pencil className="h-3.5 w-3.5 text-[#6B7280]" />
+                      <Pencil className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
                       <span>Edit Customer</span>
                     </Button>
                   )}
@@ -656,7 +656,7 @@ export function CustomerDetails({
                   variant="outline"
                   size="sm"
                   onClick={onClose}
-                  className="text-[13px] text-[#4B5563] border-[#D1D5DB]"
+                  className="text-[13px] text-[var(--text-secondary)] border-[var(--border-default)]"
                 >
                   Close
                 </Button>
@@ -683,7 +683,7 @@ export function CustomerDetails({
               <div className="grid grid-cols-2 gap-3">
                 {/* Type Selection */}
                 <div className="space-y-1.5">
-                  <label className="text-[12px] font-medium text-[#374151]">
+                  <label className="text-[12px] font-medium text-[var(--text-secondary)]">
                     Interaction Type
                   </label>
                   <Select
@@ -704,7 +704,7 @@ export function CustomerDetails({
 
                 {/* Date Selection */}
                 <div className="space-y-1.5">
-                  <label className="text-[12px] font-medium text-[#374151]">
+                  <label className="text-[12px] font-medium text-[var(--text-secondary)]">
                     Date
                   </label>
                   <DatePicker
@@ -719,7 +719,7 @@ export function CustomerDetails({
 
               {/* Summary Textarea */}
               <div className="space-y-1.5">
-                <label className="text-[12px] font-medium text-[#374151]">
+                <label className="text-[12px] font-medium text-[var(--text-secondary)]">
                   Summary / Notes
                 </label>
                 <Textarea
@@ -732,7 +732,7 @@ export function CustomerDetails({
                   className="text-[13px] min-h-[90px]"
                 />
                 {interactionError && (
-                  <p className="text-[12px] text-[#EF4444]">{interactionError}</p>
+                  <p className="text-[12px] text-[var(--destructive)]">{interactionError}</p>
                 )}
               </div>
             </div>
@@ -748,7 +748,7 @@ export function CustomerDetails({
               <Button
                 type="submit"
                 disabled={updateCustomerMutation.isPending}
-                className="bg-[#16A34A] hover:bg-[#15803D] text-white"
+                className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white"
               >
                 {updateCustomerMutation.isPending ? 'Saving...' : 'Save Interaction'}
               </Button>

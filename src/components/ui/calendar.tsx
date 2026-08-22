@@ -60,13 +60,13 @@ function Calendar({
         ),
         day_range_end: 'day-range-end',
         day_selected:
-          'bg-emerald-600 text-white hover:bg-emerald-600 hover:text-white focus:bg-emerald-600 focus:text-white',
+          'bg-[var(--primary)] text-white hover:bg-[var(--primary)] hover:text-white focus:bg-[var(--primary)] focus:text-white',
         day_today: 'bg-accent text-accent-foreground',
         day_outside:
           'day-outside text-muted-foreground opacity-50 aria-selected:bg-accent/50 aria-selected:text-muted-foreground aria-selected:opacity-30',
         day_disabled: 'text-muted-foreground opacity-50',
         day_range_middle:
-          'aria-selected:bg-emerald-50 aria-selected:text-emerald-900',
+          'aria-selected:bg-[var(--accent)] aria-selected:text-[var(--primary)]',
         day_hidden: 'invisible',
         ...classNames,
       }}

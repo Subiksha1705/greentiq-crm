@@ -119,16 +119,16 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
     >
       <DialogContent className="sm:max-w-2xl max-h-[90vh] flex flex-col p-0 overflow-hidden">
         {/* Header */}
-        <div className="p-6 border-b border-[#E5E7EB] bg-[#F9FAFB]">
+        <div className="p-6 border-b border-[var(--border-default)] bg-[var(--surface-secondary)]">
           <div className="flex items-center gap-3">
-            <div className="h-10 w-10 rounded-xl bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center border border-[#BBF7D0]">
+            <div className="h-10 w-10 rounded-xl bg-[var(--risk-low-bg)] text-[var(--primary)] flex items-center justify-center border border-[var(--accent-green-border)]">
               <UploadCloud className="h-5 w-5" />
             </div>
             <div>
-              <DialogTitle className="text-[18px] font-bold text-[#1A1D23]">
+              <DialogTitle className="text-[18px] font-bold text-[var(--text-primary)]">
                 Import Customers
               </DialogTitle>
-              <DialogDescription className="text-[13px] text-[#6B7280]">
+              <DialogDescription className="text-[13px] text-[var(--text-tertiary)]">
                 Upload an Excel (.xlsx) or CSV file to bulk import customer records into your workspace.
               </DialogDescription>
             </div>
@@ -138,12 +138,12 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
         {/* Scrollable Content */}
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           {/* Download Sample Templates Bar */}
-          <div className="p-3.5 rounded-[10px] border border-[#E5E7EB] bg-[#F9FAFB] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+          <div className="p-3.5 rounded-[10px] border border-[var(--border-default)] bg-[var(--surface-secondary)] flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div className="space-y-0.5">
-              <span className="text-[13px] font-semibold text-[#1A1D23] block">
+              <span className="text-[13px] font-semibold text-[var(--text-primary)] block">
                 Need a formatted template?
               </span>
-              <span className="text-[12px] text-[#6B7280]">
+              <span className="text-[12px] text-[var(--text-tertiary)]">
                 Download our sample spreadsheet with headers and sample records.
               </span>
             </div>
@@ -153,9 +153,9 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => downloadSampleTemplate('xlsx')}
-                className="h-8 text-[12px] font-medium border-[#D1D5DB] bg-white gap-1.5"
+                className="h-8 text-[12px] font-medium border-[var(--border-default)] bg-[var(--card)] gap-1.5"
               >
-                <FileSpreadsheet className="h-3.5 w-3.5 text-[#16A34A]" />
+                <FileSpreadsheet className="h-3.5 w-3.5 text-[var(--primary)]" />
                 <span>Sample Excel</span>
               </Button>
               <Button
@@ -163,9 +163,9 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
                 variant="outline"
                 size="sm"
                 onClick={() => downloadSampleTemplate('csv')}
-                className="h-8 text-[12px] font-medium border-[#D1D5DB] bg-white gap-1.5"
+                className="h-8 text-[12px] font-medium border-[var(--border-default)] bg-[var(--card)] gap-1.5"
               >
-                <FileText className="h-3.5 w-3.5 text-[#2563EB]" />
+                <FileText className="h-3.5 w-3.5 text-[var(--badge-info-text)]" />
                 <span>Sample CSV</span>
               </Button>
             </div>
@@ -183,8 +183,8 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
               onClick={() => fileInputRef.current?.click()}
               className={`p-8 border-2 border-dashed rounded-[12px] text-center cursor-pointer transition-all flex flex-col items-center justify-center gap-3 ${
                 isDragging
-                  ? 'border-[#16A34A] bg-[#F0FDF4]'
-                  : 'border-[#D1D5DB] bg-white hover:border-[#9CA3AF] hover:bg-[#FAFAFA]'
+                  ? 'border-[var(--primary)] bg-[var(--accent)]'
+                  : 'border-[var(--border-strong)] bg-[var(--card)] hover:border-[var(--text-tertiary)] hover:bg-[var(--surface-hover)]'
               }`}
             >
               <input
@@ -195,19 +195,19 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
                 className="hidden"
               />
 
-              <div className="h-12 w-12 rounded-full bg-[#F1F5F9] text-[#6B7280] flex items-center justify-center">
+              <div className="h-12 w-12 rounded-full bg-[var(--surface-tertiary)] text-[var(--text-tertiary)] flex items-center justify-center">
                 {isParsing ? (
-                  <RefreshCw className="h-6 w-6 animate-spin text-[#16A34A]" />
+                  <RefreshCw className="h-6 w-6 animate-spin text-[var(--primary)]" />
                 ) : (
                   <UploadCloud className="h-6 w-6" />
                 )}
               </div>
 
               <div className="space-y-1">
-                <p className="text-[14px] font-semibold text-[#1A1D23]">
+                <p className="text-[14px] font-semibold text-[var(--text-primary)]">
                   {isParsing ? 'Parsing dataset...' : 'Click to upload or drag and drop file'}
                 </p>
-                <p className="text-[12px] text-[#6B7280]">
+                <p className="text-[12px] text-[var(--text-tertiary)]">
                   Supports Excel (.xlsx, .xls) and Comma-Separated Values (.csv)
                 </p>
               </div>
@@ -215,16 +215,16 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
           ) : (
             /* Uploaded File Summary & Preview */
             <div className="space-y-4">
-              <div className="p-4 rounded-[10px] border border-[#E5E7EB] bg-white shadow-2xs flex items-center justify-between">
+              <div className="p-4 rounded-[10px] border border-[var(--border-default)] bg-[var(--card)] shadow-2xs flex items-center justify-between">
                 <div className="flex items-center gap-3">
-                  <div className="h-10 w-10 rounded-lg bg-[#DCFCE7] text-[#16A34A] flex items-center justify-center">
+                  <div className="h-10 w-10 rounded-lg bg-[var(--risk-low-bg)] text-[var(--primary)] flex items-center justify-center">
                     <FileCheck className="h-5 w-5" />
                   </div>
                   <div>
-                    <h4 className="text-[14px] font-bold text-[#1A1D23]">
+                    <h4 className="text-[14px] font-bold text-[var(--text-primary)]">
                       {selectedFile?.name}
                     </h4>
-                    <p className="text-[12px] text-[#6B7280]">
+                    <p className="text-[12px] text-[var(--text-tertiary)]">
                       {((selectedFile?.size || 0) / 1024).toFixed(1)} KB • {parseResult.totalRows} rows detected
                     </p>
                   </div>
@@ -234,7 +234,7 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
                   variant="ghost"
                   size="sm"
                   onClick={handleReset}
-                  className="text-xs text-[#6B7280] hover:text-[#EF4444]"
+                  className="text-xs text-[var(--text-tertiary)] hover:text-[var(--destructive)]"
                 >
                   Choose Different File
                 </Button>
@@ -242,13 +242,13 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
 
               {/* Stats badges */}
               <div className="flex items-center gap-3">
-                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#F0FDF4] border border-[#DCFCE7] text-[13px] font-bold text-[#166534]">
-                  <CheckCircle2 className="h-4 w-4 text-[#16A34A]" />
+                <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent)] border border-[var(--accent-green-border)] text-[13px] font-bold text-[var(--risk-low-text)]">
+                  <CheckCircle2 className="h-4 w-4 text-[var(--primary)]" />
                   <span>{parseResult.validCustomers.length} Valid Records Ready</span>
                 </div>
                 {parseResult.invalidRows.length > 0 && (
-                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#FEF2F2] border border-[#FEE2E2] text-[13px] font-bold text-[#991B1B]">
-                    <AlertCircle className="h-4 w-4 text-[#EF4444]" />
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--accent-red-bg)] border border-[var(--accent-red-border)] text-[13px] font-bold text-[var(--risk-high-text)]">
+                    <AlertCircle className="h-4 w-4 text-[var(--destructive)]" />
                     <span>{parseResult.invalidRows.length} Rows Skipped</span>
                   </div>
                 )}
@@ -256,7 +256,7 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
 
               {/* Invalid Rows Warning Box */}
               {parseResult.invalidRows.length > 0 && (
-                <div className="p-3.5 rounded-[8px] border border-[#FEE2E2] bg-[#FEF2F2]/50 space-y-1 text-xs text-[#991B1B]">
+                <div className="p-3.5 rounded-[8px] border border-[var(--accent-red-border)] bg-[var(--accent-red-bg)]/50 space-y-1 text-xs text-[var(--risk-high-text)]">
                   <span className="font-bold">Skipped row details:</span>
                   <ul className="list-disc list-inside space-y-0.5 max-h-24 overflow-y-auto">
                     {parseResult.invalidRows.map((inv, idx) => (
@@ -270,12 +270,12 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
 
               {/* Preview Table */}
               <div className="space-y-2">
-                <span className="text-[12px] font-semibold text-[#6B7280] uppercase tracking-wider">
+                <span className="text-[12px] font-semibold text-[var(--text-tertiary)] uppercase tracking-wider">
                   Dataset Preview (First {Math.min(5, parseResult.validCustomers.length)} rows)
                 </span>
-                <div className="border border-[#E5E7EB] rounded-[8px] overflow-x-auto bg-white max-h-52">
+                <div className="border border-[var(--border-default)] rounded-[8px] overflow-x-auto bg-[var(--card)] max-h-52">
                   <table className="w-full text-left text-[12px]">
-                    <thead className="bg-[#F9FAFB] border-b border-[#E5E7EB] text-[#4B5563] font-semibold">
+                    <thead className="bg-[var(--surface-secondary)] border-b border-[var(--border-default)] text-[var(--text-secondary)] font-semibold">
                       <tr>
                         <th className="p-2.5">Name</th>
                         <th className="p-2.5">Email</th>
@@ -285,10 +285,10 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
                         <th className="p-2.5">Last Contact</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-[#F1F5F9] text-[#374151]">
+                    <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--text-secondary)]">
                       {parseResult.validCustomers.slice(0, 5).map((cust, idx) => (
-                        <tr key={idx} className="hover:bg-[#FAFAFA]">
-                          <td className="p-2.5 font-medium text-[#1A1D23]">{cust.name}</td>
+                        <tr key={idx} className="hover:bg-[var(--surface-hover)]">
+                          <td className="p-2.5 font-medium text-[var(--text-primary)]">{cust.name}</td>
                           <td className="p-2.5 font-mono">{cust.email}</td>
                           <td className="p-2.5 font-mono">{cust.phone}</td>
                           <td className="p-2.5">{cust.company}</td>
@@ -307,15 +307,15 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
 
           {/* Parse Error Display */}
           {parseError && (
-            <div className="p-3.5 rounded-[8px] border border-[#FEE2E2] bg-[#FEF2F2] flex items-center gap-2 text-[13px] text-[#991B1B]">
-              <AlertCircle className="h-4 w-4 shrink-0 text-[#EF4444]" />
+            <div className="p-3.5 rounded-[8px] border border-[var(--accent-red-border)] bg-[var(--accent-red-bg)] flex items-center gap-2 text-[13px] text-[var(--risk-high-text)]">
+              <AlertCircle className="h-4 w-4 shrink-0 text-[var(--destructive)]" />
               <span>{parseError}</span>
             </div>
           )}
         </div>
 
         {/* Footer */}
-        <div className="p-4 border-t border-[#E5E7EB] bg-[#F9FAFB] flex items-center justify-between">
+        <div className="p-4 border-t border-[var(--border-default)] bg-[var(--surface-secondary)] flex items-center justify-between">
           <Button
             type="button"
             variant="outline"
@@ -324,7 +324,7 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
               onOpenChange(false);
             }}
             disabled={isImporting}
-            className="border-[#D1D5DB] text-[13px]"
+            className="border-[var(--border-default)] text-[13px]"
           >
             Cancel
           </Button>
@@ -333,7 +333,7 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
             type="button"
             onClick={handleConfirmImport}
             disabled={!parseResult || parseResult.validCustomers.length === 0 || isImporting}
-            className="bg-[#16A34A] hover:bg-[#15803D] text-white font-semibold text-[13px] gap-2 shadow-xs"
+            className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white font-semibold text-[13px] gap-2 shadow-xs"
           >
             {isImporting ? (
               <span className="flex items-center gap-1.5">

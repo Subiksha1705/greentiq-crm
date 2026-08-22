@@ -88,16 +88,16 @@ export function CustomerFilters({
 
   return (
     <Sheet open={isOpen} onOpenChange={onOpenChange}>
-      <SheetContent side="right" className="w-full sm:max-w-md flex flex-col h-full bg-card text-foreground">
+      <SheetContent side="right" className="w-full sm:max-w-md flex flex-col h-full bg-[var(--card)] text-[var(--foreground)]">
         {/* Drawer Header */}
-        <SheetHeader className="p-6 border-b border-[#E5E7EB]">
+        <SheetHeader className="p-6 border-b border-[var(--border-default)]">
           <div className="flex items-center gap-2">
-            <SlidersHorizontal className="h-5 w-5 text-[#16A34A]" />
-            <SheetTitle className="text-[18px] font-semibold leading-[1.3] text-[#1A1D23]">
+            <SlidersHorizontal className="h-5 w-5 text-[var(--primary)]" />
+            <SheetTitle className="text-[18px] font-semibold leading-[1.3] text-[var(--text-primary)]">
               Filter Customers
             </SheetTitle>
           </div>
-          <SheetDescription className="text-[12px] font-medium leading-[1.4] text-[#6B7280]">
+          <SheetDescription className="text-[12px] font-medium leading-[1.4] text-[var(--text-tertiary)]">
             Refine customer directory by status, risk levels, company, or date ranges.
           </SheetDescription>
         </SheetHeader>
@@ -106,18 +106,18 @@ export function CustomerFilters({
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {/* Status Section */}
           <div className="space-y-3">
-            <label className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[#6B7280]">
+            <label className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-tertiary)]">
               Customer Status
             </label>
             <div className="flex items-center gap-6">
-              <label className="flex items-center gap-2 cursor-pointer text-[14px] font-normal text-[#1A1D23]">
+              <label className="flex items-center gap-2 cursor-pointer text-[14px] font-normal text-[var(--text-primary)]">
                 <Checkbox
                   checked={draft.status?.includes('active') ?? false}
                   onCheckedChange={() => handleStatusToggle('active')}
                 />
                 <span>Active</span>
               </label>
-              <label className="flex items-center gap-2 cursor-pointer text-[14px] font-normal text-[#1A1D23]">
+              <label className="flex items-center gap-2 cursor-pointer text-[14px] font-normal text-[var(--text-primary)]">
                 <Checkbox
                   checked={draft.status?.includes('inactive') ?? false}
                   onCheckedChange={() => handleStatusToggle('inactive')}
@@ -127,18 +127,18 @@ export function CustomerFilters({
             </div>
           </div>
 
-          <hr className="border-[#E5E7EB]" />
+          <hr className="border-[var(--border-default)]" />
 
           {/* Follow-up Risk Section */}
           <div className="space-y-3">
-            <label className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[#6B7280]">
+            <label className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-tertiary)]">
               Follow-up Risk Level
             </label>
             <div className="grid grid-cols-3 gap-2">
               {[
-                { key: 'low' as RiskLevel, label: 'Low Risk', bg: '#DCFCE7', text: '#166534', dot: '#22C55E' },
-                { key: 'medium' as RiskLevel, label: 'Medium Risk', bg: '#FEF3C7', text: '#92400E', dot: '#F59E0B' },
-                { key: 'high' as RiskLevel, label: 'High Risk', bg: '#FEE2E2', text: '#991B1B', dot: '#EF4444' },
+                { key: 'low' as RiskLevel, label: 'Low Risk', bg: 'var(--risk-low-bg)', text: 'var(--risk-low-text)', dot: 'var(--risk-low-dot)' },
+                { key: 'medium' as RiskLevel, label: 'Medium Risk', bg: 'var(--risk-medium-bg)', text: 'var(--risk-medium-text)', dot: 'var(--risk-medium-dot)' },
+                { key: 'high' as RiskLevel, label: 'High Risk', bg: 'var(--risk-high-bg)', text: 'var(--risk-high-text)', dot: 'var(--risk-high-dot)' },
               ].map(({ key, label, bg, text, dot }) => {
                 const isChecked = draft.risk?.includes(key) ?? false;
                 return (
@@ -149,8 +149,8 @@ export function CustomerFilters({
                     className={cn(
                       'flex items-center justify-between px-[10px] py-[8px] rounded-[4px] border text-[12px] font-semibold transition-all text-left',
                       isChecked
-                        ? 'border-[#16A34A] ring-2 ring-[#DCFCE7] shadow-xs'
-                        : 'border-[#E5E7EB] hover:bg-[#F9FAFB]'
+                        ? 'border-[var(--primary)] ring-2 ring-[var(--primary)]/20 shadow-xs'
+                        : 'border-[var(--border-default)] hover:bg-[var(--surface-hover)]'
                     )}
                     style={{ backgroundColor: bg, color: text }}
                   >
@@ -165,27 +165,27 @@ export function CustomerFilters({
             </div>
           </div>
 
-          <hr className="border-[#E5E7EB]" />
+          <hr className="border-[var(--border-default)]" />
 
           {/* Company Multi-select Section */}
           {companyOptions.length > 0 && (
             <div className="space-y-3">
-              <label className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[#6B7280]">
+              <label className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-tertiary)]">
                 Company
               </label>
-              <div className="max-h-40 overflow-y-auto space-y-2 p-3 border border-[#E5E7EB] rounded-[6px] bg-[#F9FAFB]">
+              <div className="max-h-40 overflow-y-auto space-y-2 p-3 border border-[var(--border-default)] rounded-[6px] bg-[var(--surface-secondary)]">
                 {companyOptions.map((comp) => {
                   const isChecked = draft.company?.includes(comp) ?? false;
                   return (
                     <label
                       key={comp}
-                      className="flex items-center gap-2.5 cursor-pointer text-[14px] p-1 rounded hover:bg-[#F3F4F6] transition-colors"
+                      className="flex items-center gap-2.5 cursor-pointer text-[14px] p-1 rounded hover:bg-[var(--surface-tertiary)] transition-colors"
                     >
                       <Checkbox
                         checked={isChecked}
                         onCheckedChange={() => handleCompanyToggle(comp)}
                       />
-                      <span className="text-[14px] font-normal text-[#1A1D23] truncate">{comp}</span>
+                      <span className="text-[14px] font-normal text-[var(--text-primary)] truncate">{comp}</span>
                     </label>
                   );
                 })}
@@ -193,17 +193,17 @@ export function CustomerFilters({
             </div>
           )}
 
-          <hr className="border-[#E5E7EB]" />
+          <hr className="border-[var(--border-default)]" />
 
           {/* Last Contact Date Range Section */}
           <div className="space-y-3">
-            <label className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[#6B7280] flex items-center gap-1.5">
+            <label className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-tertiary)] flex items-center gap-1.5">
               <CalendarIcon className="h-3.5 w-3.5" />
               <span>Last Contact Date Range</span>
             </label>
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
-                <span className="text-[12px] font-medium text-[#6B7280]">From (Inclusive)</span>
+                <span className="text-[12px] font-medium text-[var(--text-tertiary)]">From (Inclusive)</span>
                 <DatePicker
                   date={draft.lastContactFrom ? new Date(`${draft.lastContactFrom}T00:00:00`) : undefined}
                   onSelect={(date) =>
@@ -213,11 +213,11 @@ export function CustomerFilters({
                     }))
                   }
                   placeholder="Select Date"
-                  className="h-9 text-[14px] rounded-[6px] focus-visible:ring-[#16A34A]"
+                  className="h-9 text-[14px] rounded-[6px] focus-visible:ring-[var(--primary)]"
                 />
               </div>
               <div className="space-y-1">
-                <span className="text-[12px] font-medium text-[#6B7280]">To (Inclusive)</span>
+                <span className="text-[12px] font-medium text-[var(--text-tertiary)]">To (Inclusive)</span>
                 <DatePicker
                   date={draft.lastContactTo ? new Date(`${draft.lastContactTo}T00:00:00`) : undefined}
                   onSelect={(date) =>
@@ -227,18 +227,18 @@ export function CustomerFilters({
                     }))
                   }
                   placeholder="Select Date"
-                  className="h-9 text-[14px] rounded-[6px] focus-visible:ring-[#16A34A]"
+                  className="h-9 text-[14px] rounded-[6px] focus-visible:ring-[var(--primary)]"
                 />
               </div>
             </div>
           </div>
 
-          <hr className="border-[#E5E7EB]" />
+          <hr className="border-[var(--border-default)]" />
 
           {/* Email / Phone Substring Section */}
           <div className="space-y-4">
             <div className="space-y-1.5">
-              <label className="text-[12px] font-medium text-[#4B5563]">
+              <label className="text-[12px] font-medium text-[var(--text-secondary)]">
                 Email Filter (Partial Match)
               </label>
               <Input
@@ -251,12 +251,12 @@ export function CustomerFilters({
                     email: e.target.value || undefined,
                   }))
                 }
-                className="h-9 text-[14px] border-[#D1D5DB] rounded-[6px] focus-visible:ring-[#16A34A]"
+                className="h-9 text-[14px] border-[var(--border-default)] rounded-[6px] focus-visible:ring-[var(--primary)]"
               />
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-[12px] font-medium text-[#4B5563]">
+              <label className="text-[12px] font-medium text-[var(--text-secondary)]">
                 Phone Filter (Partial Match)
               </label>
               <PhoneInput
@@ -273,13 +273,13 @@ export function CustomerFilters({
         </div>
 
         {/* Footer Actions */}
-        <SheetFooter className="p-6 border-t border-[#E5E7EB] bg-[#F9FAFB]">
+        <SheetFooter className="p-6 border-t border-[var(--border-default)] bg-[var(--surface-secondary)]">
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={handleClearAll}
-            className="text-[12px] font-medium text-[#4B5563] hover:text-[#991B1B] hover:bg-[#FEE2E2] gap-1.5 rounded-[6px]"
+            className="text-[12px] font-medium text-[var(--text-secondary)] hover:text-[var(--risk-high-text)] hover:bg-[var(--accent-red-bg)] gap-1.5 rounded-[6px]"
           >
             <RotateCcw className="h-3.5 w-3.5" />
             <span>Clear All</span>
@@ -291,7 +291,7 @@ export function CustomerFilters({
               variant="outline"
               size="sm"
               onClick={() => onOpenChange(false)}
-              className="text-[14px] font-medium border-[#D1D5DB] bg-white text-[#374151] hover:bg-[#F9FAFB] rounded-[6px] px-3.5 py-2"
+              className="text-[14px] font-medium border-[var(--border-default)] bg-[var(--card)] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] rounded-[6px] px-3.5 py-2"
             >
               Cancel
             </Button>
@@ -300,7 +300,7 @@ export function CustomerFilters({
               type="button"
               size="sm"
               onClick={handleApply}
-              className="text-[14px] font-semibold bg-[#16A34A] hover:bg-[#15803D] active:bg-[#166534] text-white rounded-[6px] px-4 py-2 shadow-xs"
+              className="text-[14px] font-semibold bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-active)] text-white rounded-[6px] px-4 py-2 shadow-xs"
             >
               Apply Filters
             </Button>

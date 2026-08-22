@@ -60,32 +60,32 @@ export function CustomerForm({
       {/* Name & Company */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className="text-[12px] font-semibold text-[#374151]">
-            Customer Name <span className="text-[#EF4444]">*</span>
+          <label className="text-[12px] font-semibold text-[var(--text-secondary)]">
+            Customer Name <span className="text-[var(--destructive)]">*</span>
           </label>
           <Input
             {...register('name')}
             placeholder="e.g. Sarah Jenkins"
-            className="h-9 text-[14px] border-[#D1D5DB]"
+            className="h-9 text-[14px] border-[var(--border-default)] bg-[var(--card)] text-[var(--text-primary)]"
             disabled={isSubmitting}
           />
           {errors.name && (
-            <p className="text-[12px] text-[#EF4444]">{errors.name.message}</p>
+            <p className="text-[12px] text-[var(--destructive)]">{errors.name.message}</p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[12px] font-semibold text-[#374151]">
-            Company <span className="text-[#EF4444]">*</span>
+          <label className="text-[12px] font-semibold text-[var(--text-secondary)]">
+            Company <span className="text-[var(--destructive)]">*</span>
           </label>
           <Input
             {...register('company')}
             placeholder="e.g. Acme Corp"
-            className="h-9 text-[14px] border-[#D1D5DB]"
+            className="h-9 text-[14px] border-[var(--border-default)] bg-[var(--card)] text-[var(--text-primary)]"
             disabled={isSubmitting}
           />
           {errors.company && (
-            <p className="text-[12px] text-[#EF4444]">{errors.company.message}</p>
+            <p className="text-[12px] text-[var(--destructive)]">{errors.company.message}</p>
           )}
         </div>
       </div>
@@ -93,24 +93,24 @@ export function CustomerForm({
       {/* Email & Phone */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className="text-[12px] font-semibold text-[#374151]">
-            Email Address <span className="text-[#EF4444]">*</span>
+          <label className="text-[12px] font-semibold text-[var(--text-secondary)]">
+            Email Address <span className="text-[var(--destructive)]">*</span>
           </label>
           <Input
             {...register('email')}
             type="email"
             placeholder="s.jenkins@acme.com"
-            className="h-9 text-[14px] border-[#D1D5DB]"
+            className="h-9 text-[14px] border-[var(--border-default)] bg-[var(--card)] text-[var(--text-primary)]"
             disabled={isSubmitting}
           />
           {errors.email && (
-            <p className="text-[12px] text-[#EF4444]">{errors.email.message}</p>
+            <p className="text-[12px] text-[var(--destructive)]">{errors.email.message}</p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[12px] font-semibold text-[#374151]">
-            Phone Number <span className="text-[#EF4444]">*</span>
+          <label className="text-[12px] font-semibold text-[var(--text-secondary)]">
+            Phone Number <span className="text-[var(--destructive)]">*</span>
           </label>
           <Controller
             name="phone"
@@ -124,7 +124,7 @@ export function CustomerForm({
             )}
           />
           {errors.phone && (
-            <p className="text-[12px] text-[#EF4444]">{errors.phone.message}</p>
+            <p className="text-[12px] text-[var(--destructive)]">{errors.phone.message}</p>
           )}
         </div>
       </div>
@@ -132,8 +132,8 @@ export function CustomerForm({
       {/* Status & Last Contact Date */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="space-y-1.5">
-          <label className="text-[12px] font-semibold text-[#374151]">
-            Status <span className="text-[#EF4444]">*</span>
+          <label className="text-[12px] font-semibold text-[var(--text-secondary)]">
+            Status <span className="text-[var(--destructive)]">*</span>
           </label>
           <Controller
             name="status"
@@ -144,7 +144,7 @@ export function CustomerForm({
                 onValueChange={field.onChange}
                 disabled={isSubmitting}
               >
-                <SelectTrigger className="h-9 text-[14px] border-[#D1D5DB]">
+                <SelectTrigger className="h-9 text-[14px] border-[var(--border-default)]">
                   <SelectValue placeholder="Select status" />
                 </SelectTrigger>
                 <SelectContent>
@@ -155,13 +155,13 @@ export function CustomerForm({
             )}
           />
           {errors.status && (
-            <p className="text-[12px] text-[#EF4444]">{errors.status.message}</p>
+            <p className="text-[12px] text-[var(--destructive)]">{errors.status.message}</p>
           )}
         </div>
 
         <div className="space-y-1.5">
-          <label className="text-[12px] font-semibold text-[#374151]">
-            Last Contact Date <span className="text-[#EF4444]">*</span>
+          <label className="text-[12px] font-semibold text-[var(--text-secondary)]">
+            Last Contact Date <span className="text-[var(--destructive)]">*</span>
           </label>
           <Controller
             name="lastContactDate"
@@ -178,13 +178,13 @@ export function CustomerForm({
                   }}
                   toDate={new Date()}
                   disabled={(d) => d > new Date()}
-                  className="h-9 text-[14px] border-[#D1D5DB]"
+                  className="h-9 text-[14px] border-[var(--border-default)]"
                 />
               );
             }}
           />
           {errors.lastContactDate && (
-            <p className="text-[12px] text-[#EF4444]">
+            <p className="text-[12px] text-[var(--destructive)]">
               {errors.lastContactDate.message}
             </p>
           )}
@@ -193,35 +193,35 @@ export function CustomerForm({
 
       {/* Notes */}
       <div className="space-y-1.5">
-        <label className="text-[12px] font-semibold text-[#374151]">
+        <label className="text-[12px] font-semibold text-[var(--text-secondary)]">
           Notes & Account Context (Optional)
         </label>
         <Textarea
           {...register('notes')}
           placeholder="Additional notes about customer requirements, communication preferences, or account context..."
-          className="text-[13px] border-[#D1D5DB] min-h-[90px]"
+          className="text-[13px] border-[var(--border-default)] min-h-[90px]"
           disabled={isSubmitting}
         />
         {errors.notes && (
-          <p className="text-[12px] text-[#EF4444]">{errors.notes.message}</p>
+          <p className="text-[12px] text-[var(--destructive)]">{errors.notes.message}</p>
         )}
       </div>
 
       {/* Form Action Buttons */}
-      <div className="flex items-center justify-end gap-3 pt-3 border-t border-[#E5E7EB]">
+      <div className="flex items-center justify-end gap-3 pt-3 border-t border-[var(--border-default)]">
         <Button
           type="button"
           variant="outline"
           onClick={onCancel}
           disabled={isSubmitting}
-          className="text-[14px] font-medium border-[#D1D5DB]"
+          className="text-[14px] font-medium border-[var(--border-default)]"
         >
           Cancel
         </Button>
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="bg-[#16A34A] hover:bg-[#15803D] text-white text-[14px] font-semibold px-5 shadow-xs"
+          className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-[14px] font-semibold px-5 shadow-xs"
         >
           {isSubmitting ? (
             <span className="flex items-center gap-1.5">
