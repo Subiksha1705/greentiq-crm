@@ -15,6 +15,8 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { CustomerFilterState, CustomerStatus, RiskLevel } from '@/types/customer';
 import { SlidersHorizontal, RotateCcw, Check, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { DatePicker } from '@/components/ui/date-picker';
+import { format } from 'date-fns';
 
 interface CustomerFiltersProps {
   isOpen: boolean;
@@ -201,30 +203,30 @@ export function CustomerFilters({
             <div className="grid grid-cols-2 gap-3">
               <div className="space-y-1">
                 <span className="text-[12px] font-medium text-[#6B7280]">From (Inclusive)</span>
-                <Input
-                  type="date"
-                  value={draft.lastContactFrom || ''}
-                  onChange={(e) =>
+                <DatePicker
+                  date={draft.lastContactFrom ? new Date(`${draft.lastContactFrom}T00:00:00`) : undefined}
+                  onSelect={(date) =>
                     setDraft((prev) => ({
                       ...prev,
-                      lastContactFrom: e.target.value || undefined,
+                      lastContactFrom: date ? format(date, 'yyyy-MM-dd') : undefined,
                     }))
                   }
-                  className="h-9 text-[14px] border-[#D1D5DB] rounded-[6px] focus-visible:ring-[#16A34A]"
+                  placeholder="Select Date"
+                  className="h-9 text-[14px] rounded-[6px] focus-visible:ring-[#16A34A]"
                 />
               </div>
               <div className="space-y-1">
                 <span className="text-[12px] font-medium text-[#6B7280]">To (Inclusive)</span>
-                <Input
-                  type="date"
-                  value={draft.lastContactTo || ''}
-                  onChange={(e) =>
+                <DatePicker
+                  date={draft.lastContactTo ? new Date(`${draft.lastContactTo}T00:00:00`) : undefined}
+                  onSelect={(date) =>
                     setDraft((prev) => ({
                       ...prev,
-                      lastContactTo: e.target.value || undefined,
+                      lastContactTo: date ? format(date, 'yyyy-MM-dd') : undefined,
                     }))
                   }
-                  className="h-9 text-[14px] border-[#D1D5DB] rounded-[6px] focus-visible:ring-[#16A34A]"
+                  placeholder="Select Date"
+                  className="h-9 text-[14px] rounded-[6px] focus-visible:ring-[#16A34A]"
                 />
               </div>
             </div>
