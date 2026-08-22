@@ -1,6 +1,5 @@
 import React from 'react';
 import { CustomerStatus } from '@/types/customer';
-import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
 interface StatusBadgeProps {
@@ -11,24 +10,26 @@ interface StatusBadgeProps {
 export function StatusBadge({ status, className }: StatusBadgeProps) {
   const isActive = status === 'active';
 
+  const config = isActive
+    ? { bg: '#DCFCE7', text: '#166534', dot: '#22C55E' }
+    : { bg: '#F1F5F9', text: '#475569', dot: '#94A3B8' };
+
   return (
-    <Badge
-      variant="outline"
+    <span
       className={cn(
-        'inline-flex items-center gap-1.5 font-medium px-2.5 py-0.5 rounded-full capitalize text-xs transition-colors',
-        isActive
-          ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20'
-          : 'bg-slate-500/10 text-slate-600 dark:text-slate-400 border-slate-500/20',
+        'inline-flex items-center gap-1.5 px-[10px] py-[4px] rounded-[4px] text-[12px] font-semibold leading-none capitalize transition-colors',
         className
       )}
+      style={{
+        backgroundColor: config.bg,
+        color: config.text,
+      }}
     >
       <span
-        className={cn(
-          'h-1.5 w-1.5 rounded-full',
-          isActive ? 'bg-emerald-500 animate-pulse' : 'bg-slate-400'
-        )}
+        className="h-[6px] w-[6px] rounded-full shrink-0"
+        style={{ backgroundColor: config.dot }}
       />
-      {status}
-    </Badge>
+      <span>{status}</span>
+    </span>
   );
 }

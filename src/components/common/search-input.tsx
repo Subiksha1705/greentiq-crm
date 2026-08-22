@@ -54,19 +54,19 @@ export function SearchInput({
 
   return (
     <div className={cn('relative w-full max-w-sm', className)}>
-      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
+      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#9CA3AF] pointer-events-none" />
       <Input
         type="text"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         placeholder={placeholder}
-        className="pl-9 pr-8 h-9 text-sm rounded-lg bg-background border-input transition-colors focus-visible:ring-1"
+        className="pl-9 pr-8 h-[36px] text-[14px] leading-[1.5] rounded-[6px] border border-[#D1D5DB] bg-white text-[#1A1D23] placeholder:text-[#9CA3AF] focus-visible:ring-[#16A34A] focus-visible:ring-1"
       />
       {searchTerm && (
         <button
           type="button"
           onClick={handleClear}
-          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-muted-foreground hover:text-foreground hover:bg-muted transition-colors"
+          className="absolute right-2.5 top-1/2 -translate-y-1/2 p-0.5 rounded-full text-[#6B7280] hover:text-[#1A1D23] hover:bg-[#F3F4F6] transition-colors"
           aria-label="Clear search"
         >
           <X className="h-3.5 w-3.5" />
@@ -75,4 +75,3 @@ export function SearchInput({
     </div>
   );
 }
-

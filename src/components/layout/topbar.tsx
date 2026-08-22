@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { Menu, Search, Command } from 'lucide-react';
+import { Menu, Search } from 'lucide-react';
 
 interface TopbarProps {
   onOpenMobileSidebar: () => void;
@@ -9,11 +9,11 @@ interface TopbarProps {
 
 export function Topbar({ onOpenMobileSidebar }: TopbarProps) {
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 lg:px-8 border-b border-slate-200/80 dark:border-slate-800/80 bg-white/80 dark:bg-slate-950/80 backdrop-blur-md">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 lg:px-8 border-b border-[#E5E7EB] bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md">
       <div className="flex items-center gap-3">
         <button
           onClick={onOpenMobileSidebar}
-          className="p-2 rounded-lg text-slate-600 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-900 lg:hidden"
+          className="p-2 rounded-[6px] text-[#6B7280] hover:text-[#1A1D23] hover:bg-[#F3F4F6] lg:hidden"
           aria-label="Open navigation menu"
         >
           <Menu className="w-5 h-5" />
@@ -21,14 +21,14 @@ export function Topbar({ onOpenMobileSidebar }: TopbarProps) {
 
         {/* Global Search Bar Placeholder */}
         <div className="relative hidden sm:flex items-center w-64 md:w-80">
-          <Search className="absolute left-3 w-4 h-4 text-slate-400" />
+          <Search className="absolute left-3 w-4 h-4 text-[#9CA3AF]" />
           <input
             type="text"
             readOnly
             placeholder="Search customers or views (⌘K)..."
-            className="w-full pl-9 pr-12 py-1.5 text-xs rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50 text-slate-500 cursor-pointer hover:border-slate-300 dark:hover:border-slate-700 transition-colors"
+            className="w-full pl-9 pr-12 py-2 text-[14px] leading-[1.5] rounded-[6px] border border-[#D1D5DB] bg-[#F9FAFB] text-[#1A1D23] placeholder:text-[#9CA3AF] cursor-pointer hover:border-[#9CA3AF] transition-colors focus:outline-none focus:ring-2 focus:ring-[#16A34A]"
           />
-          <kbd className="absolute right-2.5 px-1.5 py-0.5 text-[10px] font-mono text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded shadow-2xs">
+          <kbd className="absolute right-2.5 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-[#6B7280] bg-white border border-[#D1D5DB] rounded-[4px]">
             ⌘K
           </kbd>
         </div>
@@ -36,11 +36,9 @@ export function Topbar({ onOpenMobileSidebar }: TopbarProps) {
 
       <div className="flex items-center gap-3">
         {/* Environment / User Badge */}
-        <div className="flex items-center gap-2.5 px-3 py-1.5 rounded-full bg-slate-100 dark:bg-slate-900 border border-slate-200/60 dark:border-slate-800">
-          <div className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-          <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
-            Demo Environment
-          </span>
+        <div className="inline-flex items-center gap-1.5 px-[8px] py-[4px] rounded-[4px] bg-[#F1F5F9] text-[#475569] text-[11px] font-semibold uppercase tracking-[0.03em]">
+          <span className="h-[6px] w-[6px] rounded-full bg-[#94A3B8]" />
+          <span>Demo Environment</span>
         </div>
       </div>
     </header>
