@@ -243,3 +243,58 @@ export async function deleteCompany(id: string): Promise<{ success: boolean; id:
   const [removed] = MOCK_COMPANIES_STORE.splice(index, 1);
   return { success: true, id: removed.id };
 }
+
+/**
+ * Bulk import company records.
+ */
+export async function bulkImportCompanies(
+  inputs: CreateCompanyInput[]
+): Promise<{ importedCount: number; companies: CompanyWithStats[] }> {
+  await delay(300);
+
+  const created: CompanyWithStats[] = [];
+
+  for (const input of inputs) {
+    const trimmed = input.name.trim();
+    if (!trimmed) continue;
+
+    const existingIndex = MOCK_COMPANIES_STORE.findIndex(
+      (c) => c.name.toLowerCase().trim() === trimmed.toLowerCase()
+    );
+
+    if (existingIndex >= 0) {
+      // Update existing
+      MOCK_COMPANIES_STORE[existingIndex] = {
+        ...MOCK_COMPANIES_STORE[existingIndex],
+        industry: input.industry || MOCK_COMPANIES_STORE[existingIndex].industry,
+        tier: input.tier || MOCK_COMPANIES_STORE[existingIndex].tier,
+        website: input.website || MOCK_COMPANIES_STORE[existingIndex].website,
+        location: input.location || MOCK_COMPANIES_STORE[existingIndex].location,
+        description: input.description || MOCK_COMPANIES_STORE[existingIndex].description,
+        updatedAt: new Date().toISOString(),
+      };
+      created.push(enrichCompanyWithStats(MOCK_COMPANIES_STORE[existingIndex], false));
+    } else {
+      // Create new
+      const now = new Date().toISOString();
+      const newCompany: Company = {
+        id: `comp-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
+        name: trimmed,
+        industry: input.industry,
+        tier: input.tier,
+        website: input.website?.trim() || undefined,
+        location: input.location?.trim() || undefined,
+        description: input.description?.trim() || undefined,
+        createdAt: now,
+        updatedAt: now,
+      };
+      MOCK_COMPANIES_STORE.unshift(newCompany);
+      created.push(enrichCompanyWithStats(newCompany, false));
+    }
+  }
+
+  return {
+    importedCount: created.length,
+    companies: created,
+  };
+}

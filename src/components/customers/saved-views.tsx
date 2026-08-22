@@ -60,7 +60,7 @@ function SortableItem({ view, isSelected, onSelect, onDelete }: SortableItemProp
     >
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <div
-          className="cursor-grab opacity-0 group-hover:opacity-100 hover:text-[var(--primary)] text-[var(--text-quaternary)] transition-opacity flex items-center"
+          className="cursor-grab opacity-70 lg:opacity-0 lg:group-hover:opacity-100 hover:text-[var(--primary)] text-[var(--text-quaternary)] transition-opacity flex items-center p-0.5"
           {...attributes}
           {...listeners}
           aria-label={`Reorder ${view.name}`}
@@ -82,7 +82,7 @@ function SortableItem({ view, isSelected, onSelect, onDelete }: SortableItemProp
               e.stopPropagation();
               onDelete(view.id);
             }}
-            className="p-1 text-[var(--text-quaternary)] opacity-0 group-hover:opacity-100 hover:text-[var(--destructive)] transition-opacity"
+            className="p-1 text-[var(--text-quaternary)] opacity-70 lg:opacity-0 lg:group-hover:opacity-100 hover:text-[var(--destructive)] transition-opacity"
             aria-label={`Delete ${view.name}`}
           >
             <Trash2 className="h-4 w-4" />

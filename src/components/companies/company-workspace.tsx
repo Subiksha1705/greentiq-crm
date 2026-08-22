@@ -14,7 +14,10 @@ import {
 } from '@/types/company';
 import { CompanyForm } from './company-form';
 import { CompanyDetails } from './company-details';
+import { CompanyImportModal } from './company-import-modal';
+import { CompanyExportModal } from './company-export-modal';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
+import { DataTablePagination } from '@/components/common/data-table-pagination';
 import { SearchInput } from '@/components/common/search-input';
 import { LoadingState } from '@/components/common/loading-state';
 import { ErrorState } from '@/components/common/error-state';
@@ -45,6 +48,11 @@ import {
   ChevronRight,
   ShieldCheck,
   UserCheck,
+  Download,
+  UploadCloud,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
 } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -72,11 +80,13 @@ export function CompanyWorkspace() {
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [viewMode, setViewMode] = useState<'table' | 'cards'>('table');
   const [page, setPage] = useState(1);
-  const pageSize = 12;
+  const [pageSize, setPageSize] = useState(10);
 
   // Dialogs
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
+  const [isExportOpen, setIsExportOpen] = useState(false);
   const [editingCompany, setEditingCompany] = useState<CompanyWithStats | null>(null);
   const [deletingCompany, setDeletingCompany] = useState<CompanyWithStats | null>(null);
 
@@ -98,6 +108,7 @@ export function CompanyWorkspace() {
   // Summary Metrics calculations
   const companies = data?.data || [];
   const totalCount = data?.total || 0;
+  const totalPages = data?.totalPages || 1;
   const enterpriseCount = companies.filter((c) => c.tier === 'Enterprise').length;
   const totalContactsSum = companies.reduce((acc, c) => acc + c.totalContacts, 0);
   const activeContactsSum = companies.reduce((acc, c) => acc + c.activeContacts, 0);
@@ -163,8 +174,19 @@ export function CompanyWorkspace() {
     }
   };
 
+  const renderSortIcon = (column: NonNullable<CompanySortState['sortBy']>) => {
+    if (sortBy !== column) {
+      return <ArrowUpDown className="h-3.5 w-3.5 text-[var(--text-tertiary)] opacity-60 group-hover:opacity-100 transition-opacity" />;
+    }
+    return sortOrder === 'asc' ? (
+      <ArrowUp className="h-3.5 w-3.5 text-[var(--primary)]" />
+    ) : (
+      <ArrowDown className="h-3.5 w-3.5 text-[var(--primary)]" />
+    );
+  };
+
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Top Banner Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -175,14 +197,6 @@ export function CompanyWorkspace() {
             Manage corporate client accounts, tier segments, and cross-team contact portfolios.
           </p>
         </div>
-
-        <Button
-          onClick={() => setIsCreateOpen(true)}
-          className="bg-[var(--primary)] hover:bg-[var(--primary-hover)] text-white text-[13px] font-semibold gap-1.5 shadow-xs"
-        >
-          <Plus className="h-4 w-4" />
-          <span>Add Company</span>
-        </Button>
       </div>
 
       {/* Metric Summary Cards */}
@@ -271,8 +285,32 @@ export function CompanyWorkspace() {
             />
           </div>
 
-          {/* Filters & View Toggle */}
+          {/* Filters & Actions Controls */}
           <div className="flex flex-wrap items-center gap-2.5">
+            {/* Import Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsImportOpen(true)}
+              className="h-9 px-3 gap-1.5 text-[13px] font-medium border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)] hover:bg-[var(--surface-tertiary)] rounded-[6px]"
+              title="Import companies from Excel or CSV file"
+            >
+              <UploadCloud className="h-4 w-4 text-[var(--primary)]" />
+              <span>Import</span>
+            </Button>
+
+            {/* Export Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsExportOpen(true)}
+              className="h-9 px-3 gap-1.5 text-[13px] font-medium border-[var(--border-default)] bg-[var(--surface-secondary)] text-[var(--text-secondary)] hover:bg-[var(--surface-tertiary)] rounded-[6px]"
+              title="Export companies to Excel or CSV"
+            >
+              <Download className="h-4 w-4 text-[var(--text-secondary)]" />
+              <span>Export</span>
+            </Button>
+
             {/* Tier Filter */}
             <Select
               value={selectedTier}
@@ -281,10 +319,10 @@ export function CompanyWorkspace() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="h-9 text-[13px] w-[140px] bg-[var(--surface-secondary)] border-[var(--border-default)] text-[var(--text-primary)]">
+              <SelectTrigger className="h-9 text-[13px] w-[130px] sm:w-[140px] bg-[var(--surface-secondary)] border-[var(--border-default)] text-[var(--text-primary)]">
                 <SelectValue placeholder="All Tiers" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[var(--popover)] border-[var(--border-default)]">
                 {TIERS.map((t) => (
                   <SelectItem key={t} value={t} className="text-[13px]">
                     {t === 'all' ? 'All Tiers' : t}
@@ -301,10 +339,10 @@ export function CompanyWorkspace() {
                 setPage(1);
               }}
             >
-              <SelectTrigger className="h-9 text-[13px] w-[160px] bg-[var(--surface-secondary)] border-[var(--border-default)] text-[var(--text-primary)]">
+              <SelectTrigger className="h-9 text-[13px] w-[140px] sm:w-[160px] bg-[var(--surface-secondary)] border-[var(--border-default)] text-[var(--text-primary)]">
                 <SelectValue placeholder="All Industries" />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-[var(--popover)] border-[var(--border-default)]">
                 {INDUSTRIES.map((ind) => (
                   <SelectItem key={ind} value={ind} className="text-[13px]">
                     {ind === 'all' ? 'All Industries' : ind}
@@ -334,6 +372,16 @@ export function CompanyWorkspace() {
                 <LayoutGrid className="h-4 w-4" />
               </Button>
             </div>
+
+            {/* Add Company Button */}
+            <Button
+              size="sm"
+              onClick={() => setIsCreateOpen(true)}
+              className="h-9 px-3.5 gap-1.5 text-[13px] font-semibold bg-[var(--primary)] hover:bg-[var(--primary-hover)] active:bg-[var(--primary-active)] text-white rounded-[6px] shadow-xs"
+            >
+              <Plus className="h-4 w-4" />
+              <span>Add Company</span>
+            </Button>
           </div>
         </div>
       </div>
@@ -368,210 +416,241 @@ export function CompanyWorkspace() {
             <span>Create Company</span>
           </Button>
         </div>
-      ) : viewMode === 'table' ? (
-        /* Table View */
-        <div className="rounded-[12px] bg-[var(--card)] border border-[var(--border-default)] shadow-xs overflow-hidden">
-          <div className="overflow-x-auto">
-            <table className="w-full text-left text-[14px]">
-              <thead className="bg-[var(--surface-secondary)] border-b border-[var(--border-default)] text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-quaternary)]">
-                <tr>
-                  <th
-                    className="py-3 px-4 cursor-pointer hover:text-[var(--text-primary)]"
-                    onClick={() => toggleSort('name')}
-                  >
-                    Company Name
-                  </th>
-                  <th
-                    className="py-3 px-4 cursor-pointer hover:text-[var(--text-primary)]"
-                    onClick={() => toggleSort('industry')}
-                  >
-                    Industry
-                  </th>
-                  <th
-                    className="py-3 px-4 cursor-pointer hover:text-[var(--text-primary)]"
-                    onClick={() => toggleSort('tier')}
-                  >
-                    Tier
-                  </th>
-                  <th className="py-3 px-4">Location</th>
-                  <th
-                    className="py-3 px-4 text-center cursor-pointer hover:text-[var(--text-primary)]"
-                    onClick={() => toggleSort('totalContacts')}
-                  >
-                    Total Contacts
-                  </th>
-                  <th
-                    className="py-3 px-4 text-center cursor-pointer hover:text-[var(--text-primary)]"
-                    onClick={() => toggleSort('activeContacts')}
-                  >
-                    Active Contacts
-                  </th>
-                  <th className="py-3 px-4 text-right">Actions</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-[var(--border-default)]">
-                {companies.map((company) => (
-                  <tr
-                    key={company.id}
-                    onClick={() => setSelectedCompanyId(company.id)}
-                    className="hover:bg-[var(--surface-tertiary)] cursor-pointer transition-colors group"
-                  >
-                    {/* Name & Website */}
-                    <td className="py-3.5 px-4">
+      ) : (
+        <div className="space-y-4">
+          {viewMode === 'table' ? (
+            /* Table View */
+            <div className="w-full border border-[var(--border-default)] rounded-[8px] overflow-x-auto bg-[var(--card)] shadow-xs">
+              <table className="w-full text-left text-[14px] min-w-[750px]">
+                <thead className="bg-[var(--surface-secondary)] border-b border-[var(--border-default)] text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-quaternary)]">
+                  <tr>
+                    <th
+                      className="py-3 px-4 cursor-pointer hover:text-[var(--text-primary)] group"
+                      onClick={() => toggleSort('name')}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>Company Name</span>
+                        {renderSortIcon('name')}
+                      </div>
+                    </th>
+                    <th
+                      className="py-3 px-4 cursor-pointer hover:text-[var(--text-primary)] group"
+                      onClick={() => toggleSort('industry')}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>Industry</span>
+                        {renderSortIcon('industry')}
+                      </div>
+                    </th>
+                    <th
+                      className="py-3 px-4 cursor-pointer hover:text-[var(--text-primary)] group"
+                      onClick={() => toggleSort('tier')}
+                    >
+                      <div className="flex items-center gap-1.5">
+                        <span>Tier</span>
+                        {renderSortIcon('tier')}
+                      </div>
+                    </th>
+                    <th className="py-3 px-4">Location</th>
+                    <th
+                      className="py-3 px-4 text-center cursor-pointer hover:text-[var(--text-primary)] group"
+                      onClick={() => toggleSort('totalContacts')}
+                    >
+                      <div className="flex items-center justify-center gap-1.5">
+                        <span>Total Contacts</span>
+                        {renderSortIcon('totalContacts')}
+                      </div>
+                    </th>
+                    <th
+                      className="py-3 px-4 text-center cursor-pointer hover:text-[var(--text-primary)] group"
+                      onClick={() => toggleSort('activeContacts')}
+                    >
+                      <div className="flex items-center justify-center gap-1.5">
+                        <span>Active Contacts</span>
+                        {renderSortIcon('activeContacts')}
+                      </div>
+                    </th>
+                    <th className="py-3 px-4 text-right">Actions</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border-default)]">
+                  {companies.map((company) => (
+                    <tr
+                      key={company.id}
+                      onClick={() => setSelectedCompanyId(company.id)}
+                      className="hover:bg-[var(--surface-tertiary)] cursor-pointer transition-colors group"
+                    >
+                      {/* Name & Website */}
+                      <td className="py-3.5 px-4">
+                        <div className="flex items-center gap-3">
+                          <div className="h-9 w-9 rounded-lg bg-[var(--accent)] text-[var(--primary)] flex items-center justify-center font-bold text-[14px] shrink-0 border border-[var(--border-default)]">
+                            {company.name.charAt(0).toUpperCase()}
+                          </div>
+                          <div className="min-w-0">
+                            <p className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors truncate">
+                              {company.name}
+                            </p>
+                            {company.website && (
+                              <p className="text-[12px] text-[var(--text-tertiary)] truncate">
+                                {company.website.replace(/^https?:\/\//, '')}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </td>
+
+                      {/* Industry */}
+                      <td className="py-3.5 px-4 text-[var(--text-secondary)]">
+                        {company.industry}
+                      </td>
+
+                      {/* Tier */}
+                      <td className="py-3.5 px-4">
+                        <Badge
+                          variant="secondary"
+                          className={getTierBadgeClass(company.tier)}
+                        >
+                          {company.tier}
+                        </Badge>
+                      </td>
+
+                      {/* Location */}
+                      <td className="py-3.5 px-4 text-[var(--text-tertiary)] text-[13px]">
+                        {company.location || '—'}
+                      </td>
+
+                      {/* Total Contacts */}
+                      <td className="py-3.5 px-4 text-center font-bold text-[var(--text-primary)]">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--surface-secondary)] border border-[var(--border-default)]">
+                          <Users className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
+                          <span>{company.totalContacts}</span>
+                        </div>
+                      </td>
+
+                      {/* Active Contacts */}
+                      <td className="py-3.5 px-4 text-center font-bold text-[var(--text-primary)]">
+                        <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--surface-secondary)] border border-[var(--border-default)]">
+                          <span className="h-2 w-2 rounded-full bg-[var(--badge-success-text)]" />
+                          <span>{company.activeContacts}</span>
+                        </div>
+                      </td>
+
+                      {/* Actions */}
+                      <td className="py-3.5 px-4 text-right">
+                        <div
+                          className="flex items-center justify-end gap-1"
+                          onClick={(e) => e.stopPropagation()}
+                        >
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setEditingCompany(company)}
+                            className="h-8 w-8 p-0 text-[var(--text-tertiary)] hover:text-[var(--primary)] hover:bg-[var(--surface-tertiary)]"
+                            title="Edit Company"
+                          >
+                            <Pencil className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setDeletingCompany(company)}
+                            className="h-8 w-8 p-0 text-[var(--text-tertiary)] hover:text-[var(--destructive)] hover:bg-[var(--surface-tertiary)]"
+                            title="Delete Company"
+                          >
+                            <Trash2 className="h-3.5 w-3.5" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setSelectedCompanyId(company.id)}
+                            className="h-8 w-8 p-0 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-tertiary)]"
+                            title="View Details"
+                          >
+                            <ChevronRight className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            /* Grouped Cards View */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {companies.map((company) => (
+                <div
+                  key={company.id}
+                  onClick={() => setSelectedCompanyId(company.id)}
+                  className="p-5 rounded-[12px] bg-[var(--card)] border border-[var(--border-default)] shadow-xs hover:border-[var(--primary)]/50 cursor-pointer transition-all flex flex-col justify-between group space-y-4"
+                >
+                  <div>
+                    {/* Header */}
+                    <div className="flex items-start justify-between gap-3">
                       <div className="flex items-center gap-3">
-                        <div className="h-9 w-9 rounded-lg bg-[var(--accent)] text-[var(--primary)] flex items-center justify-center font-bold text-[14px] shrink-0 border border-[var(--border-default)]">
+                        <div className="h-10 w-10 rounded-[10px] bg-[var(--primary)] text-white flex items-center justify-center font-bold text-[16px] shadow-xs">
                           {company.name.charAt(0).toUpperCase()}
                         </div>
-                        <div className="min-w-0">
-                          <p className="font-semibold text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors truncate">
+                        <div>
+                          <h4 className="font-bold text-[16px] text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
                             {company.name}
-                          </p>
-                          {company.website && (
-                            <p className="text-[12px] text-[var(--text-tertiary)] truncate">
-                              {company.website.replace(/^https?:\/\//, '')}
-                            </p>
-                          )}
+                          </h4>
+                          <p className="text-[12px] text-[var(--text-tertiary)]">{company.industry}</p>
                         </div>
                       </div>
-                    </td>
 
-                    {/* Industry */}
-                    <td className="py-3.5 px-4 text-[var(--text-secondary)]">
-                      {company.industry}
-                    </td>
-
-                    {/* Tier */}
-                    <td className="py-3.5 px-4">
                       <Badge
                         variant="secondary"
-                        className={getTierBadgeClass(company.tier)}
+                        className={`text-[11px] font-semibold ${getTierBadgeClass(company.tier)}`}
                       >
                         {company.tier}
                       </Badge>
-                    </td>
-
-                    {/* Location */}
-                    <td className="py-3.5 px-4 text-[var(--text-tertiary)] text-[13px]">
-                      {company.location || '—'}
-                    </td>
-
-                    {/* Total Contacts */}
-                    <td className="py-3.5 px-4 text-center font-bold text-[var(--text-primary)]">
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--surface-secondary)] border border-[var(--border-default)]">
-                        <Users className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
-                        <span>{company.totalContacts}</span>
-                      </div>
-                    </td>
-
-                    {/* Active Contacts */}
-                    <td className="py-3.5 px-4 text-center font-bold text-[var(--text-primary)]">
-                      <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[var(--surface-secondary)] border border-[var(--border-default)]">
-                        <span className="h-2 w-2 rounded-full bg-[var(--badge-success-text)]" />
-                        <span>{company.activeContacts}</span>
-                      </div>
-                    </td>
-
-                    {/* Actions */}
-                    <td className="py-3.5 px-4 text-right">
-                      <div
-                        className="flex items-center justify-end gap-1"
-                        onClick={(e) => e.stopPropagation()}
-                      >
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setEditingCompany(company)}
-                          className="h-8 w-8 p-0 text-[var(--text-tertiary)] hover:text-[var(--primary)] hover:bg-[var(--surface-tertiary)]"
-                          title="Edit Company"
-                        >
-                          <Pencil className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setDeletingCompany(company)}
-                          className="h-8 w-8 p-0 text-[var(--text-tertiary)] hover:text-[var(--destructive)] hover:bg-[var(--surface-tertiary)]"
-                          title="Delete Company"
-                        >
-                          <Trash2 className="h-3.5 w-3.5" />
-                        </Button>
-                        <Button
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => setSelectedCompanyId(company.id)}
-                          className="h-8 w-8 p-0 text-[var(--text-tertiary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-tertiary)]"
-                          title="View Details"
-                        >
-                          <ChevronRight className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      ) : (
-        /* Grouped Cards View */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {companies.map((company) => (
-            <div
-              key={company.id}
-              onClick={() => setSelectedCompanyId(company.id)}
-              className="p-5 rounded-[12px] bg-[var(--card)] border border-[var(--border-default)] shadow-xs hover:border-[var(--primary)]/50 cursor-pointer transition-all flex flex-col justify-between group space-y-4"
-            >
-              <div>
-                {/* Header */}
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-3">
-                    <div className="h-10 w-10 rounded-[10px] bg-[var(--primary)] text-white flex items-center justify-center font-bold text-[16px] shadow-xs">
-                      {company.name.charAt(0).toUpperCase()}
                     </div>
-                    <div>
-                      <h4 className="font-bold text-[16px] text-[var(--text-primary)] group-hover:text-[var(--primary)] transition-colors">
-                        {company.name}
-                      </h4>
-                      <p className="text-[12px] text-[var(--text-tertiary)]">{company.industry}</p>
-                    </div>
+
+                    {/* Description */}
+                    {company.description && (
+                      <p className="text-[13px] text-[var(--text-secondary)] mt-3 line-clamp-2 leading-relaxed">
+                        {company.description}
+                      </p>
+                    )}
                   </div>
 
-                  <Badge
-                    variant="secondary"
-                    className={`text-[11px] font-semibold ${getTierBadgeClass(company.tier)}`}
-                  >
-                    {company.tier}
-                  </Badge>
-                </div>
+                  {/* Footer Metrics */}
+                  <div className="pt-3 border-t border-[var(--border-default)] flex items-center justify-between text-[12px] text-[var(--text-secondary)]">
+                    <div className="flex items-center gap-1.5">
+                      <Users className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
+                      <span className="font-bold text-[var(--text-primary)]">
+                        {company.totalContacts}
+                      </span>
+                      <span>total contacts</span>
+                    </div>
 
-                {/* Description */}
-                {company.description && (
-                  <p className="text-[13px] text-[var(--text-secondary)] mt-3 line-clamp-2 leading-relaxed">
-                    {company.description}
-                  </p>
-                )}
-              </div>
-
-              {/* Footer Metrics */}
-              <div className="pt-3 border-t border-[var(--border-default)] flex items-center justify-between text-[12px] text-[var(--text-secondary)]">
-                <div className="flex items-center gap-1.5">
-                  <Users className="h-3.5 w-3.5 text-[var(--text-tertiary)]" />
-                  <span className="font-bold text-[var(--text-primary)]">
-                    {company.totalContacts}
-                  </span>
-                  <span>total contacts</span>
+                    <div className="flex items-center gap-1.5">
+                      <span className="h-2 w-2 rounded-full bg-[var(--badge-success-text)]" />
+                      <span className="font-bold text-[var(--text-primary)]">
+                        {company.activeContacts}
+                      </span>
+                      <span>active</span>
+                    </div>
+                  </div>
                 </div>
-
-                <div className="flex items-center gap-1.5">
-                  <span className="h-2 w-2 rounded-full bg-[var(--badge-success-text)]" />
-                  <span className="font-bold text-[var(--text-primary)]">
-                    {company.activeContacts}
-                  </span>
-                  <span>active</span>
-                </div>
-              </div>
+              ))}
             </div>
-          ))}
+          )}
+
+          {/* DataTablePagination */}
+          <DataTablePagination
+            page={page}
+            pageSize={pageSize}
+            totalItems={totalCount}
+            totalPages={totalPages}
+            onPageChange={setPage}
+            onPageSizeChange={(newSize) => {
+              setPageSize(newSize);
+              setPage(1);
+            }}
+            pageSizeOptions={[10, 25, 50]}
+          />
         </div>
       )}
 
@@ -639,6 +718,19 @@ export function CompanyWorkspace() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Company Import Modal */}
+      <CompanyImportModal
+        isOpen={isImportOpen}
+        onOpenChange={setIsImportOpen}
+      />
+
+      {/* Company Export Modal */}
+      <CompanyExportModal
+        isOpen={isExportOpen}
+        onOpenChange={setIsExportOpen}
+        companies={companies}
+      />
 
       {/* Delete Company Confirmation Dialog */}
       <ConfirmDialog

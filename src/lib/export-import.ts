@@ -211,3 +211,209 @@ export async function parseCustomerFile(file: File): Promise<ParsedImportResult>
     totalRows: rawRows.length,
   };
 }
+
+/**
+ * Columns configuration for Company Excel and CSV export/import.
+ */
+export const COMPANY_FILE_HEADERS = [
+  'Company Name',
+  'Industry',
+  'Account Tier',
+  'Website',
+  'Location',
+  'Description',
+  'Total Contacts',
+  'Active Contacts',
+];
+
+/**
+ * Exports companies to either Excel (.xlsx) or CSV (.csv).
+ */
+export function exportCompanies(
+  companies: import('@/types/company').CompanyWithStats[],
+  format: 'xlsx' | 'csv',
+  filenamePrefix: string = 'greentiq_companies'
+): void {
+  const dateStamp = new Date().toISOString().split('T')[0];
+  const filename = `${filenamePrefix}_${dateStamp}.${format}`;
+
+  const data = companies.map((c) => ({
+    'Company Name': c.name,
+    Industry: c.industry,
+    'Account Tier': c.tier,
+    Website: c.website || '',
+    Location: c.location || '',
+    Description: c.description || '',
+    'Total Contacts': c.totalContacts,
+    'Active Contacts': c.activeContacts,
+  }));
+
+  const worksheet = XLSX.utils.json_to_sheet(data, { header: COMPANY_FILE_HEADERS });
+
+  worksheet['!cols'] = [
+    { wch: 25 }, // Company Name
+    { wch: 20 }, // Industry
+    { wch: 15 }, // Account Tier
+    { wch: 28 }, // Website
+    { wch: 22 }, // Location
+    { wch: 35 }, // Description
+    { wch: 15 }, // Total Contacts
+    { wch: 15 }, // Active Contacts
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Companies');
+
+  XLSX.writeFile(workbook, filename, {
+    bookType: format === 'xlsx' ? 'xlsx' : 'csv',
+  });
+}
+
+/**
+ * Generates a downloadable sample template for bulk company imports.
+ */
+export function downloadCompanySampleTemplate(format: 'xlsx' | 'csv'): void {
+  const sampleData = [
+    {
+      'Company Name': 'Stripe Payments',
+      Industry: 'Financial Services',
+      'Account Tier': 'Enterprise',
+      Website: 'https://stripe.com',
+      Location: 'San Francisco, CA',
+      Description: 'Global payments and financial infrastructure platform.',
+      'Total Contacts': 0,
+      'Active Contacts': 0,
+    },
+    {
+      'Company Name': 'Vercel Inc',
+      Industry: 'Technology',
+      'Account Tier': 'Enterprise',
+      Website: 'https://vercel.com',
+      Location: 'San Francisco, CA',
+      Description: 'Cloud platform for frontend developers and Next.js applications.',
+      'Total Contacts': 0,
+      'Active Contacts': 0,
+    },
+    {
+      'Company Name': 'BioTech Innovations',
+      Industry: 'Healthcare',
+      'Account Tier': 'Startup',
+      Website: 'https://biotechinnovate.io',
+      Location: 'Boston, MA',
+      Description: 'Clinical research and genetic diagnostic devices.',
+      'Total Contacts': 0,
+      'Active Contacts': 0,
+    },
+  ];
+
+  const worksheet = XLSX.utils.json_to_sheet(sampleData, { header: COMPANY_FILE_HEADERS });
+  worksheet['!cols'] = [
+    { wch: 25 },
+    { wch: 20 },
+    { wch: 15 },
+    { wch: 28 },
+    { wch: 22 },
+    { wch: 35 },
+    { wch: 15 },
+    { wch: 15 },
+  ];
+
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, 'Companies');
+
+  XLSX.writeFile(workbook, `greentiq_companies_template.${format}`, {
+    bookType: format === 'xlsx' ? 'xlsx' : 'csv',
+  });
+}
+
+export interface ParsedCompanyImportResult {
+  validCompanies: import('@/types/company').CreateCompanyInput[];
+  invalidRows: { row: number; reason: string; raw: Record<string, unknown> }[];
+  totalRows: number;
+}
+
+/**
+ * Parses and validates an uploaded Company Excel or CSV file.
+ */
+export async function parseCompanyFile(file: File): Promise<ParsedCompanyImportResult> {
+  const buffer = await file.arrayBuffer();
+  const workbook = XLSX.read(buffer, { type: 'array' });
+
+  const firstSheetName = workbook.SheetNames[0];
+  if (!firstSheetName) {
+    throw new Error('The uploaded file does not contain any sheets.');
+  }
+
+  const worksheet = workbook.Sheets[firstSheetName];
+  const rawRows: Record<string, unknown>[] = XLSX.utils.sheet_to_json(worksheet, { defval: '' });
+
+  const validCompanies: import('@/types/company').CreateCompanyInput[] = [];
+  const invalidRows: { row: number; reason: string; raw: Record<string, unknown> }[] = [];
+
+  const VALID_INDUSTRIES: import('@/types/company').CompanyIndustry[] = [
+    'Technology',
+    'Healthcare',
+    'Financial Services',
+    'Energy & CleanTech',
+    'Retail',
+    'Manufacturing',
+    'Media',
+    'Real Estate',
+    'Other',
+  ];
+
+  const VALID_TIERS: import('@/types/company').CompanyTier[] = [
+    'Enterprise',
+    'Mid-Market',
+    'SMB',
+    'Startup',
+  ];
+
+  rawRows.forEach((row, index) => {
+    const rowNumber = index + 2;
+
+    const findValue = (keys: string[]) => {
+      for (const k of Object.keys(row)) {
+        if (keys.some((target) => target.toLowerCase() === k.trim().toLowerCase())) {
+          return String(row[k]).trim();
+        }
+      }
+      return '';
+    };
+
+    const name = findValue(['Company Name', 'Name', 'Organization', 'Company']);
+    const industryRaw = findValue(['Industry', 'Sector', 'Industry Sector']);
+    const tierRaw = findValue(['Account Tier', 'Tier']);
+    const website = findValue(['Website', 'URL', 'Web']);
+    const location = findValue(['Location', 'Headquarters', 'City', 'HQ']);
+    const description = findValue(['Description', 'Overview', 'Notes', 'About']);
+
+    if (!name) {
+      invalidRows.push({ row: rowNumber, reason: 'Missing Company Name', raw: row });
+      return;
+    }
+
+    const matchedIndustry = VALID_INDUSTRIES.find(
+      (ind) => ind.toLowerCase() === industryRaw.toLowerCase()
+    ) || 'Technology';
+
+    const matchedTier = VALID_TIERS.find(
+      (t) => t.toLowerCase() === tierRaw.toLowerCase()
+    ) || 'Mid-Market';
+
+    validCompanies.push({
+      name,
+      industry: matchedIndustry,
+      tier: matchedTier,
+      website: website || undefined,
+      location: location || undefined,
+      description: description || undefined,
+    });
+  });
+
+  return {
+    validCompanies,
+    invalidRows,
+    totalRows: rawRows.length,
+  };
+}

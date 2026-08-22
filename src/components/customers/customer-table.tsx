@@ -145,8 +145,8 @@ export function CustomerTable({
   }
 
   return (
-    <div className="w-full border border-[var(--border-default)] rounded-[8px] overflow-x-auto bg-[var(--card)] shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
-      <Table className="min-w-max">
+    <div className="w-full border border-[var(--border-default)] rounded-[8px] overflow-x-auto bg-[var(--card)] shadow-xs">
+      <Table className="w-full text-left text-[14px] min-w-[850px]">
         <TableHeader className="bg-[var(--surface-secondary)]">
           <TableRow className="hover:bg-[var(--surface-secondary)] border-b border-[var(--border-default)]">
             {/* Header Select All Checkbox */}
