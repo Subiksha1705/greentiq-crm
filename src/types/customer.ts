@@ -32,6 +32,23 @@ export interface CustomerStats {
   active: number;
   inactive: number;
   needsAttention: number;
+  lowRiskCount: number;
+  mediumRiskCount: number;
+  highRiskCount: number;
+  avgDaysSinceContact: number;
+  healthScore: number;
+  recencyBuckets: {
+    range: string;
+    label: string;
+    count: number;
+    percentage: number;
+    color: string;
+  }[];
+  topCompanies: {
+    company: string;
+    count: number;
+    activeCount: number;
+  }[];
 }
 
 export interface CustomerFilterState {

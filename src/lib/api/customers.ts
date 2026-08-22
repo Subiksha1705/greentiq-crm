@@ -13,7 +13,7 @@ import {
   matchesAllFilters,
   RISK_RANK_MAP,
 } from '../customer-rules';
-import { toCalendarDate } from '../utils';
+import { toCalendarDate, getCalendarDaysDifference } from '../utils';
 
 // Deterministic error mode state (§5.2)
 type ErrorMode = 'off' | 'next' | 'all';
@@ -226,6 +226,20 @@ export async function getCustomerStats(): Promise<CustomerStats> {
   let active = 0;
   let inactive = 0;
   let needsAttention = 0;
+  let lowRiskCount = 0;
+  let mediumRiskCount = 0;
+  let highRiskCount = 0;
+  let totalDaysDiff = 0;
+
+  // Recency buckets count
+  let bucket0to7 = 0;
+  let bucket8to14 = 0;
+  let bucket15to30 = 0;
+  let bucket31to60 = 0;
+  let bucket60Plus = 0;
+
+  // Company distribution map
+  const companyMap = new Map<string, { count: number; activeCount: number }>();
 
   for (const customer of MOCK_CUSTOMERS_STORE) {
     if (customer.status === 'active') {
@@ -237,12 +251,90 @@ export async function getCustomerStats(): Promise<CustomerStats> {
     if (isNeedsAttention(customer)) {
       needsAttention++;
     }
+
+    const risk = getFollowUpRisk(customer.lastContactDate);
+    if (risk === 'low') lowRiskCount++;
+    else if (risk === 'medium') mediumRiskCount++;
+    else if (risk === 'high') highRiskCount++;
+
+    const daysDiff = Math.max(0, getCalendarDaysDifference(customer.lastContactDate));
+    totalDaysDiff += daysDiff;
+
+    if (daysDiff <= 7) bucket0to7++;
+    else if (daysDiff <= 14) bucket8to14++;
+    else if (daysDiff <= 30) bucket15to30++;
+    else if (daysDiff <= 60) bucket31to60++;
+    else bucket60Plus++;
+
+    if (customer.company) {
+      const existing = companyMap.get(customer.company) || { count: 0, activeCount: 0 };
+      existing.count += 1;
+      if (customer.status === 'active') existing.activeCount += 1;
+      companyMap.set(customer.company, existing);
+    }
   }
+
+  const avgDaysSinceContact = total > 0 ? Math.round(totalDaysDiff / total) : 0;
+  const healthScore = total > 0 ? Math.round((lowRiskCount / total) * 100) : 0;
+
+  const recencyBuckets = [
+    {
+      range: '0–7 Days',
+      label: 'Fresh (Low Risk)',
+      count: bucket0to7,
+      percentage: total > 0 ? Math.round((bucket0to7 / total) * 100) : 0,
+      color: '#16A34A',
+    },
+    {
+      range: '8–14 Days',
+      label: 'Recent (Medium Risk)',
+      count: bucket8to14,
+      percentage: total > 0 ? Math.round((bucket8to14 / total) * 100) : 0,
+      color: '#EAB308',
+    },
+    {
+      range: '15–30 Days',
+      label: 'Approaching (Medium Risk)',
+      count: bucket15to30,
+      percentage: total > 0 ? Math.round((bucket15to30 / total) * 100) : 0,
+      color: '#F97316',
+    },
+    {
+      range: '31–60 Days',
+      label: 'Lapsed (High Risk)',
+      count: bucket31to60,
+      percentage: total > 0 ? Math.round((bucket31to60 / total) * 100) : 0,
+      color: '#EF4444',
+    },
+    {
+      range: '60+ Days',
+      label: 'Critical (High Risk)',
+      count: bucket60Plus,
+      percentage: total > 0 ? Math.round((bucket60Plus / total) * 100) : 0,
+      color: '#991B1B',
+    },
+  ];
+
+  const topCompanies = Array.from(companyMap.entries())
+    .map(([company, data]) => ({
+      company,
+      count: data.count,
+      activeCount: data.activeCount,
+    }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
 
   return {
     total,
     active,
     inactive,
     needsAttention,
+    lowRiskCount,
+    mediumRiskCount,
+    highRiskCount,
+    avgDaysSinceContact,
+    healthScore,
+    recencyBuckets,
+    topCompanies,
   };
 }
