@@ -41,13 +41,13 @@ export function DataTablePagination({
   const endItem = Math.min(page * pageSize, totalItems);
 
   return (
-    <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 px-3 py-3 border-t border-[#E5E7EB] text-[14px] text-[#4B5563] bg-white rounded-b-[8px] ${className}`}>
+    <div className={`flex flex-col sm:flex-row items-center justify-between gap-4 px-3 py-3 border-t border-[var(--border-default)] text-[14px] text-[var(--text-secondary)] bg-[var(--card)] rounded-b-[8px] ${className}`}>
       {/* Items count summary */}
       <div className="flex items-center gap-2">
         <span>
-          Showing <strong className="font-semibold text-[#1A1D23]">{startItem}</strong> to{' '}
-          <strong className="font-semibold text-[#1A1D23]">{endItem}</strong> of{' '}
-          <strong className="font-semibold text-[#1A1D23]">{totalItems}</strong> entries
+          Showing <strong className="font-semibold text-[var(--text-primary)]">{startItem}</strong> to{' '}
+          <strong className="font-semibold text-[var(--text-primary)]">{endItem}</strong> of{' '}
+          <strong className="font-semibold text-[var(--text-primary)]">{totalItems}</strong> entries
         </span>
       </div>
 
@@ -55,15 +55,15 @@ export function DataTablePagination({
       <div className="flex items-center gap-6">
         {/* Rows per page selector */}
         <div className="flex items-center gap-2">
-          <span className="text-[12px] font-medium text-[#6B7280] whitespace-nowrap">Rows per page</span>
+          <span className="text-[12px] font-medium text-[var(--text-tertiary)] whitespace-nowrap">Rows per page</span>
           <Select
             value={String(pageSize)}
             onValueChange={(val) => onPageSizeChange(Number(val))}
           >
-            <SelectTrigger className="h-8 w-[70px] border-[#D1D5DB] rounded-[6px] text-[14px]">
+            <SelectTrigger className="h-8 w-[70px] border-[var(--border-default)] rounded-[6px] text-[14px]">
               <SelectValue placeholder={String(pageSize)} />
             </SelectTrigger>
-            <SelectContent side="top" className="bg-white border-[#E5E7EB] rounded-[8px]">
+            <SelectContent side="top" className="bg-[var(--popover)] border-[var(--border-default)] rounded-[8px]">
               {pageSizeOptions.map((option) => (
                 <SelectItem key={option} value={String(option)}>
                   {option}
@@ -75,15 +75,15 @@ export function DataTablePagination({
 
         {/* Page navigation */}
         <div className="flex items-center gap-1.5">
-          <span className="text-[12px] font-medium text-[#6B7280] mr-2 whitespace-nowrap">
-            Page <strong className="font-semibold text-[#1A1D23]">{page}</strong> of{' '}
-            <strong className="font-semibold text-[#1A1D23]">{Math.max(1, totalPages)}</strong>
+          <span className="text-[12px] font-medium text-[var(--text-tertiary)] mr-2 whitespace-nowrap">
+            Page <strong className="font-semibold text-[var(--text-primary)]">{page}</strong> of{' '}
+            <strong className="font-semibold text-[var(--text-primary)]">{Math.max(1, totalPages)}</strong>
           </span>
 
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 p-0 border-[#D1D5DB] rounded-[6px] text-[#374151] hover:bg-[#F9FAFB]"
+            className="h-8 w-8 p-0 border-[var(--border-default)] rounded-[6px] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
             onClick={() => onPageChange(1)}
             disabled={page <= 1}
             aria-label="First page"
@@ -94,7 +94,7 @@ export function DataTablePagination({
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 p-0 border-[#D1D5DB] rounded-[6px] text-[#374151] hover:bg-[#F9FAFB]"
+            className="h-8 w-8 p-0 border-[var(--border-default)] rounded-[6px] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
             onClick={() => onPageChange(page - 1)}
             disabled={page <= 1}
             aria-label="Previous page"
@@ -105,7 +105,7 @@ export function DataTablePagination({
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 p-0 border-[#D1D5DB] rounded-[6px] text-[#374151] hover:bg-[#F9FAFB]"
+            className="h-8 w-8 p-0 border-[var(--border-default)] rounded-[6px] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
             onClick={() => onPageChange(page + 1)}
             disabled={page >= totalPages}
             aria-label="Next page"
@@ -116,7 +116,7 @@ export function DataTablePagination({
           <Button
             variant="outline"
             size="icon"
-            className="h-8 w-8 p-0 border-[#D1D5DB] rounded-[6px] text-[#374151] hover:bg-[#F9FAFB]"
+            className="h-8 w-8 p-0 border-[var(--border-default)] rounded-[6px] text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)]"
             onClick={() => onPageChange(totalPages)}
             disabled={page >= totalPages}
             aria-label="Last page"

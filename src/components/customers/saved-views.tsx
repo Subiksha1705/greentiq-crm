@@ -53,13 +53,13 @@ function SortableItem({ view, isSelected, onSelect, onDelete }: SortableItemProp
       style={style}
       className={cn(
         "flex items-center justify-between group rounded-[6px] px-2 py-1.5 transition-colors text-[14px]",
-        isSelected ? "bg-[#F0FDF4] text-[#16A34A] font-semibold" : "text-[#4B5563] hover:bg-[#F3F4F6] hover:text-[#1A1D23]",
+        isSelected ? "bg-[var(--accent)] text-[var(--primary)] font-semibold" : "text-[var(--text-secondary)] hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-primary)]",
         isDragging && "opacity-50 z-10 relative"
       )}
     >
       <div className="flex items-center gap-2 flex-1 min-w-0">
         <div
-          className="cursor-grab opacity-0 group-hover:opacity-100 hover:text-[#16A34A] text-[#9CA3AF] transition-opacity flex items-center"
+          className="cursor-grab opacity-0 group-hover:opacity-100 hover:text-[var(--primary)] text-[var(--text-quaternary)] transition-opacity flex items-center"
           {...attributes}
           {...listeners}
           aria-label={`Reorder ${view.name}`}
@@ -74,14 +74,14 @@ function SortableItem({ view, isSelected, onSelect, onDelete }: SortableItemProp
         </button>
       </div>
       <div className="flex items-center gap-1 shrink-0">
-        {isSelected && <CheckCircle2 className="h-4 w-4 text-[#16A34A]" />}
+        {isSelected && <CheckCircle2 className="h-4 w-4 text-[var(--primary)]" />}
         {!view.isPredefined && (
           <button
             onClick={(e) => {
               e.stopPropagation();
               onDelete(view.id);
             }}
-            className="p-1 text-[#9CA3AF] opacity-0 group-hover:opacity-100 hover:text-[#EF4444] transition-opacity"
+            className="p-1 text-[var(--text-quaternary)] opacity-0 group-hover:opacity-100 hover:text-[var(--destructive)] transition-opacity"
             aria-label={`Delete ${view.name}`}
           >
             <Trash2 className="h-4 w-4" />
@@ -141,7 +141,7 @@ export function SavedViewsList() {
   return (
     <div className="flex flex-col h-full">
       <div className="flex items-center justify-between px-3 pb-2">
-        <h3 className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[#9CA3AF]">
+        <h3 className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[var(--text-quaternary)]">
           Saved Views
         </h3>
         <Dialog open={isDialogOpen} onOpenChange={(open: boolean) => {
@@ -153,7 +153,7 @@ export function SavedViewsList() {
         }}>
           <DialogTrigger asChild>
             <button
-              className="text-[#16A34A] hover:bg-[#F0FDF4] p-1 rounded transition-colors"
+              className="text-[var(--primary)] hover:bg-[var(--accent)] p-1 rounded transition-colors"
               aria-label="Save current view"
               title="Save current filters as view"
             >
