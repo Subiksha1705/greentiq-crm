@@ -26,16 +26,16 @@ A high-performance Customer Relationship Management (CRM) dashboard and workspac
 ## Quick Start
 
 ```bash
-# 1. Install dependencies (legacy-peer-deps handles React 19 / react-day-picker metadata)
-npm install --legacy-peer-deps
+# 1. Install dependencies
+yarn install
 
 # 2. Start local development server
-npm run dev
+yarn dev
 
 # 3. Run automated tests, linter, and production build
-npm test             # Run Vitest test suite (30 tests)
-npm run lint         # Check ESLint rules (0 errors/warnings)
-npm run build        # Validate TypeScript and produce production build
+yarn test            # Run Vitest test suite (30 tests)
+yarn lint            # Check ESLint rules (0 errors/warnings)
+yarn build           # Validate TypeScript and produce production build
 ```
 
 ---
@@ -95,13 +95,12 @@ npm run build        # Validate TypeScript and produce production build
 
 ---
 
-## Code Quality & Key Bug Fixes
+## Code Quality & Architecture
 
-- **Full-Dataset Company Options**: Resolved issue where company filter dropdown only reflected the active paginated page by introducing `getCustomerFilterOptions()`.
-- **Full-Dataset Filtered Export**: Resolved issue where exports were constrained to the current page by introducing `listAllFilteredCustomers()` to export the complete filtered query.
-- **Deduplicated Query Cache**: Centralized query keys (`src/lib/query-keys.ts`) preventing stale cache collisions.
-- **Test Coverage**: 30 Vitest tests validating customer filtering rules, validation schemas, company operations, and debounced hooks.
-- **Linter & Types**: 0 ESLint errors/warnings and strict TypeScript compilation (`npx tsc --noEmit`).
+- **Test Coverage**: 30/30 Vitest unit tests passing across customer filtering rules, company operations, validation schemas, and custom hooks.
+- **Type Safety & Build**: Strict TypeScript compilation with zero type errors (`yarn build`).
+- **Clean Linting**: Zero ESLint warnings or errors (`yarn lint`).
+- **Single Source of Truth**: Centralized filtering, sorting, and follow-up risk engine (`src/lib/customer-rules.ts`) and centralized query keys (`src/lib/query-keys.ts`).
 
 ---
 
