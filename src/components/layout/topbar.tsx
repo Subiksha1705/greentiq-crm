@@ -9,7 +9,7 @@ interface TopbarProps {
 
 export function Topbar({ onOpenMobileSidebar }: TopbarProps) {
   return (
-    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 lg:px-8 border-b border-[#E5E7EB] bg-white/95 dark:bg-[#0F172A]/95 backdrop-blur-md">
+    <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 lg:px-8 border-b border-[#E5E7EB] bg-white/95 backdrop-blur-md">
       <div className="flex items-center gap-3">
         <button
           onClick={onOpenMobileSidebar}

@@ -8,7 +8,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-[#F9FAFB] dark:bg-[#0F172A] text-[#1A1D23] dark:text-[#F8FAFC] flex font-sans">
+    <div className="min-h-screen bg-[#F9FAFB] text-[#1A1D23] flex font-sans">
       <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
       <div className="flex-1 flex flex-col min-w-0 lg:pl-[260px]">

@@ -42,7 +42,7 @@ export function Sidebar({ mobileOpen = false, setMobileOpen }: SidebarProps) {
       {/* Sidebar Container (260px fixed width) */}
       <aside
         className={cn(
-          'fixed top-0 bottom-0 left-0 z-50 flex flex-col w-[260px] border-r border-[#E5E7EB] bg-white dark:bg-[#0F172A] transition-transform duration-300 ease-in-out lg:translate-x-0',
+          'fixed top-0 bottom-0 left-0 z-50 flex flex-col w-[260px] border-r border-[#E5E7EB] bg-white transition-transform duration-300 ease-in-out lg:translate-x-0',
           mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
         )}
       >
@@ -53,7 +53,7 @@ export function Sidebar({ mobileOpen = false, setMobileOpen }: SidebarProps) {
               <Leaf className="w-5 h-5" />
             </div>
             <div className="flex flex-col">
-              <span className="font-semibold text-[#1A1D23] dark:text-[#F8FAFC] tracking-tight text-[16px]">
+              <span className="font-semibold text-[#1A1D23] tracking-tight text-[16px]">
                 Greentiq
               </span>
               <span className="text-[11px] font-semibold uppercase tracking-[0.03em] text-[#16A34A]">

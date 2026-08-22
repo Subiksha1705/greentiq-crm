@@ -14,6 +14,51 @@ import { Button } from '@/components/ui/button';
 import { ArrowUpDown, ArrowUp, ArrowDown, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+interface ResizableHeaderProps extends React.ThHTMLAttributes<HTMLTableCellElement> {
+  defaultWidth?: number;
+}
+
+function ResizableHeader({ children, className, defaultWidth = 150, ...props }: ResizableHeaderProps) {
+  const [width, setWidth] = React.useState(defaultWidth);
+
+  const startDrag = (e: React.MouseEvent) => {
+    e.preventDefault();
+    const startX = e.clientX;
+    const startWidth = width;
+    
+    const onMouseMove = (moveEvent: MouseEvent) => {
+      setWidth(Math.max(60, startWidth + moveEvent.clientX - startX));
+    };
+    const onMouseUp = () => {
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  return (
+    <TableHead 
+      className={cn('relative px-4 py-2.5 h-auto text-[14px] font-semibold group', className)}
+      style={{ width, minWidth: width, maxWidth: width }}
+      {...props}
+    >
+      <div className="flex items-center justify-between w-full h-full overflow-hidden">
+        {children}
+      </div>
+      {/* Resizer Handle */}
+      <div 
+        onMouseDown={startDrag}
+        className="absolute right-0 top-0 bottom-0 w-5 cursor-col-resize flex items-center justify-center group/resizer"
+        title="Drag to resize column"
+      >
+        <div className="w-[3px] h-6 bg-[#E5E7EB] group-hover/resizer:bg-emerald-500 rounded-full transition-colors" />
+      </div>
+    </TableHead>
+  );
+}
+
 interface CustomerTableProps {
   customers: Customer[];
   sortBy?: CustomerSortState['sortBy'];
@@ -38,7 +83,7 @@ export function CustomerTable({
   ) => {
     const isActive = sortBy === columnKey;
     return (
-      <TableHead className={cn('px-4 py-2.5 h-auto text-[14px] font-semibold text-[#1A1D23]', className)}>
+      <ResizableHeader className={cn('text-[#1A1D23]', className)} defaultWidth={parseInt(className?.match(/w-\[(\d+)px\]/)?.[1] || '150')}>
         <Button
           variant="ghost"
           size="sm"
@@ -59,7 +104,7 @@ export function CustomerTable({
             <ArrowUpDown className="ml-1.5 h-3.5 w-3.5 opacity-40 group-hover:opacity-100 transition-opacity" />
           )}
         </Button>
-      </TableHead>
+      </ResizableHeader>
     );
   };
 
@@ -88,15 +133,15 @@ export function CustomerTable({
   }
 
   return (
-    <div className="w-full border border-[#E5E7EB] rounded-[8px] overflow-hidden bg-white shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
-      <Table>
+    <div className="w-full border border-[#E5E7EB] rounded-[8px] overflow-x-auto bg-white shadow-[0_1px_2px_rgba(16,24,40,0.05)]">
+      <Table className="min-w-max">
         <TableHeader className="bg-[#F9FAFB]">
           <TableRow className="hover:bg-[#F9FAFB] border-b border-[#E5E7EB]">
             {renderSortHeader('Name', 'name', 'w-[220px]')}
             {renderSortHeader('Email', 'email', 'w-[220px]')}
-            <TableHead className="px-4 py-2.5 h-auto text-[14px] font-semibold text-[#374151] w-[140px]">Phone</TableHead>
-            <TableHead className="px-4 py-2.5 h-auto text-[14px] font-semibold text-[#374151] w-[160px]">Company</TableHead>
-            <TableHead className="px-4 py-2.5 h-auto text-[14px] font-semibold text-[#374151] w-[110px]">Status</TableHead>
+            <ResizableHeader className="text-[#374151]" defaultWidth={140}>Phone</ResizableHeader>
+            <ResizableHeader className="text-[#374151]" defaultWidth={160}>Company</ResizableHeader>
+            <ResizableHeader className="text-[#374151]" defaultWidth={110}>Status</ResizableHeader>
             {renderSortHeader('Last Contact', 'lastContactDate', 'w-[150px]')}
             {renderSortHeader('Follow-up Risk', 'followUpRisk', 'w-[150px]')}
           </TableRow>
