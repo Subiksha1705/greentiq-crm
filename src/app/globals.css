@@ -207,7 +207,9 @@
   }
 }
 
-* {
+*,
+*::before,
+*::after {
   border-color: var(--border);
 }
 
@@ -235,3 +237,4 @@ body {
 ::-webkit-scrollbar-thumb:hover {
   background: rgba(156, 163, 175, 0.7);
 }
+

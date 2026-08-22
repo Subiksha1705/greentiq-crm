@@ -23,9 +23,13 @@ export function ThemeToggle() {
 
   const isDark = theme === 'dark';
 
+  const handleToggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark');
+  };
+
   return (
     <button
-      onClick={() => setTheme(isDark ? 'light' : 'dark')}
+      onClick={handleToggleTheme}
       className={cn(
         'relative h-9 w-9 rounded-[8px] flex items-center justify-center transition-all duration-300',
         'hover:scale-105 active:scale-95',
