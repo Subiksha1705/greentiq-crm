@@ -68,6 +68,8 @@ export function CustomerDetails({
   customerId,
   isOpen,
   onClose,
+  onEdit,
+  onDelete,
 }: CustomerDetailsProps) {
   const { data: customer, isLoading, isError, error } = useCustomer(customerId);
   const updateCustomerMutation = useUpdateCustomer();
@@ -625,6 +627,31 @@ export function CustomerDetails({
 
               {/* Footer Actions */}
               <div className="p-4 border-t border-[#E5E7EB] bg-[#F9FAFB] flex items-center justify-between">
+                <div className="flex items-center gap-2">
+                  {onDelete && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onDelete(customer.id)}
+                      className="text-[13px] text-[#EF4444] border-[#FEE2E2] hover:bg-[#FEF2F2] hover:text-[#DC2626] gap-1.5"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                      <span>Delete</span>
+                    </Button>
+                  )}
+                  {onEdit && (
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => onEdit(customer.id)}
+                      className="text-[13px] text-[#374151] border-[#D1D5DB] hover:bg-white gap-1.5"
+                    >
+                      <Pencil className="h-3.5 w-3.5 text-[#6B7280]" />
+                      <span>Edit Customer</span>
+                    </Button>
+                  )}
+                </div>
+
                 <Button
                   variant="outline"
                   size="sm"

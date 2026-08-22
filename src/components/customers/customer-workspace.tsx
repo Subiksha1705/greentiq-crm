@@ -3,16 +3,30 @@
 import React, { useState, useMemo } from 'react';
 import { useCustomerFilters } from '@/hooks/use-customer-filters';
 import { useCustomers } from '@/hooks/use-customers';
+import { useCustomer } from '@/hooks/use-customer';
+import { useCreateCustomer } from '@/hooks/use-create-customer';
+import { useUpdateCustomer } from '@/hooks/use-update-customer';
+import { useDeleteCustomer } from '@/hooks/use-delete-customer';
 import { CustomerToolbar } from './customer-toolbar';
 import { CustomerTable } from './customer-table';
 import { CustomerFilters } from './customer-filters';
 import { CustomerDetails } from './customer-details';
+import { CustomerForm } from './customer-form';
+import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { DataTablePagination } from '@/components/common/data-table-pagination';
 import { LoadingState } from '@/components/common/loading-state';
 import { ErrorState } from '@/components/common/error-state';
 import { FilterChip } from '@/components/common/filter-chip';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog';
 import { CustomerSortState } from '@/types/customer';
-import { AlertCircle, X } from 'lucide-react';
+import { CustomerFormValues } from '@/lib/validations/customer';
+import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 export function CustomerWorkspace() {
@@ -28,10 +42,22 @@ export function CustomerWorkspace() {
     activeFilterChips,
   } = useCustomerFilters();
 
-  const { data, isLoading, isError, error, refetch, isFetching } = useCustomers(params);
+  const { data, isLoading, isError, refetch, isFetching } = useCustomers(params);
 
+  // Mutations
+  const createCustomerMutation = useCreateCustomer();
+  const updateCustomerMutation = useUpdateCustomer();
+  const deleteCustomerMutation = useDeleteCustomer();
+
+  // Drawer & Modal states
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
   const [isFiltersOpen, setIsFiltersOpen] = useState(false);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [editingCustomerId, setEditingCustomerId] = useState<string | null>(null);
+  const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null);
+
+  // Active customer for editing
+  const { data: editingCustomer } = useCustomer(editingCustomerId);
 
   // Extract unique company options from current result set or available mock data
   const companyOptions = useMemo(() => {
@@ -49,6 +75,52 @@ export function CustomerWorkspace() {
 
   const handleSelectCustomer = (id: string) => {
     setSelectedCustomerId(id);
+  };
+
+  // Create Customer Handler
+  const handleCreateCustomer = async (values: CustomerFormValues) => {
+    await createCustomerMutation.mutateAsync({
+      name: values.name,
+      email: values.email,
+      phone: values.phone,
+      company: values.company,
+      status: values.status,
+      lastContactDate: values.lastContactDate,
+      notes: values.notes,
+    });
+    setIsCreateOpen(false);
+  };
+
+  // Edit Customer Handler
+  const handleEditCustomer = async (values: CustomerFormValues) => {
+    if (!editingCustomerId) return;
+    await updateCustomerMutation.mutateAsync({
+      id: editingCustomerId,
+      input: {
+        name: values.name,
+        email: values.email,
+        phone: values.phone,
+        company: values.company,
+        status: values.status,
+        lastContactDate: values.lastContactDate,
+        notes: values.notes,
+      },
+    });
+    setEditingCustomerId(null);
+  };
+
+  // Delete Customer Handler (§7 Delete-while-open behavior)
+  const handleDeleteCustomer = async () => {
+    if (!deletingCustomerId) return;
+    const targetId = deletingCustomerId;
+
+    await deleteCustomerMutation.mutateAsync(targetId);
+
+    // If the customer currently open in the details drawer is deleted, close drawer & clear selection
+    if (selectedCustomerId === targetId) {
+      setSelectedCustomerId(null);
+    }
+    setDeletingCustomerId(null);
   };
 
   return (
@@ -72,6 +144,7 @@ export function CustomerWorkspace() {
         totalCount={data?.total ?? 0}
         activeFilterCount={activeFilterCount}
         onToggleFilters={() => setIsFiltersOpen(true)}
+        onAddCustomer={() => setIsCreateOpen(true)}
         isFetching={isFetching}
         onRefresh={() => refetch()}
       />
@@ -157,6 +230,73 @@ export function CustomerWorkspace() {
         customerId={selectedCustomerId}
         isOpen={Boolean(selectedCustomerId)}
         onClose={() => setSelectedCustomerId(null)}
+        onEdit={(id) => setEditingCustomerId(id)}
+        onDelete={(id) => setDeletingCustomerId(id)}
+      />
+
+      {/* Add Customer Modal */}
+      <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="text-[18px] font-bold text-[#1A1D23]">
+              Add New Customer
+            </DialogTitle>
+            <DialogDescription className="text-[13px] text-[#6B7280]">
+              Create a new customer account record with initial contact dates and details.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="pt-2">
+            <CustomerForm
+              mode="create"
+              onSubmit={handleCreateCustomer}
+              onCancel={() => setIsCreateOpen(false)}
+              isSubmitting={createCustomerMutation.isPending}
+            />
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Edit Customer Modal */}
+      <Dialog
+        open={Boolean(editingCustomerId)}
+        onOpenChange={(open) => !open && setEditingCustomerId(null)}
+      >
+        <DialogContent className="sm:max-w-xl">
+          <DialogHeader>
+            <DialogTitle className="text-[18px] font-bold text-[#1A1D23]">
+              Edit Customer
+            </DialogTitle>
+            <DialogDescription className="text-[13px] text-[#6B7280]">
+              Update contact information, status, and account notes for this customer.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="pt-2">
+            {editingCustomer ? (
+              <CustomerForm
+                key={editingCustomer.id}
+                mode="edit"
+                defaultValues={editingCustomer}
+                onSubmit={handleEditCustomer}
+                onCancel={() => setEditingCustomerId(null)}
+                isSubmitting={updateCustomerMutation.isPending}
+              />
+            ) : (
+              <LoadingState variant="detail" />
+            )}
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={Boolean(deletingCustomerId)}
+        onOpenChange={(open) => !open && setDeletingCustomerId(null)}
+        title="Delete Customer Record"
+        description="Are you sure you want to delete this customer? This action will permanently remove their records, contact recency history, and logs from the workspace."
+        confirmLabel="Delete Customer"
+        variant="destructive"
+        isPending={deleteCustomerMutation.isPending}
+        onConfirm={handleDeleteCustomer}
       />
     </div>
   );
