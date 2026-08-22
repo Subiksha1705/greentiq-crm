@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import {
   Select,
@@ -66,29 +66,35 @@ export function PhoneInput({
     return { country: COUNTRY_CODES[0], localNumber: val };
   };
 
-  const [selectedCountry, setSelectedCountry] = useState<CountryCode>(() => parseInitial(value).country);
-  const [localNumber, setLocalNumber] = useState<string>(() => parseInitial(value).localNumber);
+  // Derived directly from props — no effect needed for the common case
+  const { country: derivedCountry, localNumber: derivedLocalNumber } = parseInitial(value);
 
-  // Sync internal state when external value changes
-  useEffect(() => {
-    const { country, localNumber: num } = parseInitial(value);
-    setSelectedCountry(country);
-    setLocalNumber(num);
-  }, [value]);
+  // Local override state only for in-progress typing/country selection
+  const [override, setOverride] = useState<{ country: CountryCode; localNumber: string } | null>(null);
+
+  const selectedCountry = override?.country ?? derivedCountry;
+  const localNumber = override?.localNumber ?? derivedLocalNumber;
 
   const handleCountryChange = (countryCode: string) => {
     const country = COUNTRY_CODES.find((c) => c.code === countryCode) || COUNTRY_CODES[0];
-    setSelectedCountry(country);
+    setOverride({ country, localNumber });
     const combined = localNumber.trim() ? `${country.dialCode} ${localNumber.trim()}` : '';
     onChange?.(combined);
   };
 
   const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const raw = e.target.value;
-    setLocalNumber(raw);
+    setOverride({ country: selectedCountry, localNumber: raw });
     const combined = raw.trim() ? `${selectedCountry.dialCode} ${raw.trim()}` : '';
     onChange?.(combined);
   };
+
+  // Reset the local override during render when value genuinely changes externally
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
+    setOverride(null);
+  }
 
   return (
     <div className={cn('flex items-center gap-2', className)}>

@@ -11,9 +11,10 @@ export function useDeleteCustomer() {
   return useMutation({
     mutationFn: (id: string) => deleteCustomer(id),
     onSuccess: (_, id) => {
-      // Invalidate list variants, dashboard stats, and remove customer detail query
+      // Invalidate list variants, dashboard stats, filter options, and remove customer detail query
       queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
       queryClient.invalidateQueries({ queryKey: customerKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: customerKeys.filterOptions() });
       queryClient.removeQueries({ queryKey: customerKeys.detail(id) });
       toast.success('Customer deleted successfully');
     },

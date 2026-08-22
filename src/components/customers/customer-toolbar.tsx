@@ -9,7 +9,6 @@ import { Badge } from '@/components/ui/badge';
 interface CustomerToolbarProps {
   searchQuery?: string;
   onSearchChange: (debouncedSearch: string) => void;
-  totalCount: number;
   onToggleFilters?: () => void;
   onAddCustomer?: () => void;
   onExport?: () => void;
@@ -17,13 +16,11 @@ interface CustomerToolbarProps {
   onExportCsv?: () => void;
   activeFilterCount?: number;
   isFetching?: boolean;
-  onRefresh?: () => void;
 }
 
 export function CustomerToolbar({
   searchQuery = '',
   onSearchChange,
-  totalCount,
   onToggleFilters,
   onAddCustomer,
   onExport,
@@ -31,7 +28,6 @@ export function CustomerToolbar({
   onExportCsv,
   activeFilterCount = 0,
   isFetching = false,
-  onRefresh,
 }: CustomerToolbarProps) {
   const handleExportClick = onExport || onExportCsv;
 

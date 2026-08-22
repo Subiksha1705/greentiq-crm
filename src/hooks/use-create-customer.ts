@@ -12,9 +12,10 @@ export function useCreateCustomer() {
   return useMutation({
     mutationFn: (input: CreateCustomerInput) => createCustomer(input),
     onSuccess: (newCustomer) => {
-      // Invalidate all list variants and dashboard stats
+      // Invalidate all list variants, dashboard stats, and filter options
       queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
       queryClient.invalidateQueries({ queryKey: customerKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: customerKeys.filterOptions() });
       toast.success(`Customer "${newCustomer.name}" created successfully`);
     },
     onError: (error: Error) => {

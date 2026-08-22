@@ -3,6 +3,7 @@ import {
   getFollowUpRisk,
   isNeedsAttention,
   matchesAllFilters,
+  sortCustomers,
 } from '../customer-rules';
 import { Customer } from '@/types/customer';
 
@@ -136,4 +137,59 @@ describe('Customer Rules Engine', () => {
       expect(matchesAllFilters(customer, { company: ['Other Corp'] })).toBe(false);
     });
   });
+
+  describe('sortCustomers', () => {
+    const list: Customer[] = [
+      {
+        id: '1',
+        name: 'Zara',
+        email: 'zara@example.com',
+        phone: '+1 555 1111',
+        company: 'Z Corp',
+        status: 'active',
+        lastContactDate: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Low risk
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+      },
+      {
+        id: '2',
+        name: 'Alice',
+        email: 'alice@example.com',
+        phone: '+1 555 2222',
+        company: 'A Corp',
+        status: 'active',
+        lastContactDate: new Date(Date.now() - 40 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // High risk
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+      },
+      {
+        id: '3',
+        name: 'Bob',
+        email: 'bob@example.com',
+        phone: '+1 555 3333',
+        company: 'B Corp',
+        status: 'active',
+        lastContactDate: new Date(Date.now() - 15 * 24 * 60 * 60 * 1000).toISOString().split('T')[0], // Medium risk
+        createdAt: '2026-01-01',
+        updatedAt: '2026-01-01',
+      },
+    ];
+
+    it('sorts alphabetically by name ascending and descending', () => {
+      const asc = sortCustomers(list, 'name', 'asc');
+      expect(asc.map((c) => c.name)).toEqual(['Alice', 'Bob', 'Zara']);
+
+      const desc = sortCustomers(list, 'name', 'desc');
+      expect(desc.map((c) => c.name)).toEqual(['Zara', 'Bob', 'Alice']);
+    });
+
+    it('sorts by follow-up risk by rank (low < medium < high)', () => {
+      const asc = sortCustomers(list, 'followUpRisk', 'asc');
+      expect(asc.map((c) => c.name)).toEqual(['Zara', 'Bob', 'Alice']); // low=Zara, med=Bob, high=Alice
+
+      const desc = sortCustomers(list, 'followUpRisk', 'desc');
+      expect(desc.map((c) => c.name)).toEqual(['Alice', 'Bob', 'Zara']);
+    });
+  });
 });
+

@@ -5,7 +5,6 @@ import { Customer, CustomerSortState } from '@/types/customer';
 import {
   Table,
   TableBody,
-  TableCell,
   TableHead,
   TableHeader,
   TableRow,

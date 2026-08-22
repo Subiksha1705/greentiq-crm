@@ -17,10 +17,11 @@ export function useUpdateCustomer() {
   return useMutation({
     mutationFn: ({ id, input }: UpdateCustomerVariables) => updateCustomer(id, input),
     onSuccess: (updatedCustomer, { id }) => {
-      // Invalidate list variants, specific detail query, and dashboard stats
+      // Invalidate list variants, specific detail query, dashboard stats, and filter options
       queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
       queryClient.invalidateQueries({ queryKey: customerKeys.detail(id) });
       queryClient.invalidateQueries({ queryKey: customerKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: customerKeys.filterOptions() });
       toast.success('Customer updated successfully');
     },
     onError: (error: Error) => {

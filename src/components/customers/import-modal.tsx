@@ -4,10 +4,8 @@ import React, { useState, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
   DialogTitle,
   DialogDescription,
-  DialogFooter,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,9 +22,7 @@ import {
   FileText,
   CheckCircle2,
   AlertCircle,
-  Download,
   RefreshCw,
-  X,
   FileCheck,
 } from 'lucide-react';
 import { toast } from 'sonner';
@@ -98,6 +94,7 @@ export function ImportModal({ isOpen, onOpenChange }: ImportModalProps) {
       const res = await bulkImportCustomers(parseResult.validCustomers);
       queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
       queryClient.invalidateQueries({ queryKey: customerKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: customerKeys.filterOptions() });
 
       toast.success(`Successfully imported ${res.importedCount} customer account(s)!`);
       onOpenChange(false);

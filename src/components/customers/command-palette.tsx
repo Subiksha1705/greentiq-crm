@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import {
   CommandDialog,
@@ -21,32 +21,32 @@ import {
   Plus,
   SlidersHorizontal,
   Download,
-  Calendar,
 } from 'lucide-react';
-import { useSavedViews } from '@/hooks/use-saved-views';
 
 interface CommandPaletteProps {
   open?: boolean;
   onOpenChange?: (open: boolean) => void;
-  onAddCustomer?: () => void;
-  onOpenFilters?: () => void;
-  onExportCsv?: () => void;
 }
 
 export function CommandPalette({
   open: externalOpen,
   onOpenChange: externalOnOpenChange,
-  onAddCustomer,
-  onOpenFilters,
-  onExportCsv,
 }: CommandPaletteProps) {
   const router = useRouter();
   const [internalOpen, setInternalOpen] = useState(false);
-  const { views } = useSavedViews();
 
   const isControlled = externalOpen !== undefined;
   const isOpen = isControlled ? externalOpen : internalOpen;
-  const setOpen = isControlled ? (externalOnOpenChange || (() => {})) : setInternalOpen;
+  const setOpen = useCallback(
+    (open: boolean) => {
+      if (isControlled) {
+        externalOnOpenChange?.(open);
+      } else {
+        setInternalOpen(open);
+      }
+    },
+    [isControlled, externalOnOpenChange]
+  );
 
   // Global keyboard shortcut listener for ⌘K / Ctrl+K
   useEffect(() => {

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useMemo, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCustomerFilters } from '@/hooks/use-customer-filters';
 import { useCustomers } from '@/hooks/use-customers';
@@ -8,10 +8,12 @@ import { useCustomer } from '@/hooks/use-customer';
 import { useCreateCustomer } from '@/hooks/use-create-customer';
 import { useUpdateCustomer } from '@/hooks/use-update-customer';
 import { useDeleteCustomer } from '@/hooks/use-delete-customer';
+import { useCustomerFilterOptions } from '@/hooks/use-customer-filter-options';
+import { useCustomersByIds } from '@/hooks/use-customers-by-ids';
+import { useAllFilteredCustomers } from '@/hooks/use-all-filtered-customers';
 import { useQueryClient } from '@tanstack/react-query';
 import { customerKeys } from '@/lib/query-keys';
 import { bulkUpdateCustomerStatus, bulkDeleteCustomers } from '@/lib/api/customers';
-import { exportCustomersToCsv } from '@/lib/csv';
 import { CustomerToolbar } from './customer-toolbar';
 import { CustomerTable } from './customer-table';
 import { CustomerFilters } from './customer-filters';
@@ -57,6 +59,8 @@ export function CustomerWorkspace() {
   } = useCustomerFilters();
 
   const { data, isLoading, isError, refetch, isFetching } = useCustomers(params);
+  const { data: filterOptionsData } = useCustomerFilterOptions();
+  const companyOptions = filterOptionsData?.companies ?? [];
 
   // Mutations
   const createCustomerMutation = useCreateCustomer();
@@ -77,40 +81,41 @@ export function CustomerWorkspace() {
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
-  // Handle Quick Actions from Command Palette or URL query parameters
-  useEffect(() => {
-    const action = searchParams.get('action');
-    if (!action) return;
+  // Full datasets for export (unpaginated filtered set & cross-page selected set)
+  const { data: allFilteredCustomers = [] } = useAllFilteredCustomers(params, isExportModalOpen);
+  const { data: selectedCustomersData = [] } = useCustomersByIds(
+    selectedCustomerIds,
+    isExportModalOpen && selectedCustomerIds.length > 0
+  );
 
-    if (action === 'add') {
+  // Handle Quick Actions from Command Palette or URL query parameters
+  const actionParam = searchParams.get('action');
+  const [handledAction, setHandledAction] = useState<string | null>(null);
+
+  if (actionParam && actionParam !== handledAction) {
+    setHandledAction(actionParam);
+    if (actionParam === 'add') {
       setIsCreateOpen(true);
-    } else if (action === 'filter') {
+    } else if (actionParam === 'filter') {
       setIsFiltersOpen(true);
-    } else if (action === 'export') {
+    } else if (actionParam === 'export') {
       setIsExportModalOpen(true);
-    } else if (action === 'import') {
+    } else if (actionParam === 'import') {
       setIsImportModalOpen(true);
     }
+  }
 
+  useEffect(() => {
+    if (!actionParam) return;
     // Clean up action param from URL without triggering full reload
     const current = new URLSearchParams(Array.from(searchParams.entries()));
     current.delete('action');
     const newQuery = current.toString() ? `?${current.toString()}` : '';
     router.replace(`${pathname}${newQuery}`, { scroll: false });
-  }, [searchParams, pathname, router]);
+  }, [actionParam, searchParams, pathname, router]);
 
   // Active customer for editing
   const { data: editingCustomer } = useCustomer(editingCustomerId);
-
-  // Extract unique company options from current result set or available mock data
-  const companyOptions = useMemo(() => {
-    if (!data?.data) return [];
-    const set = new Set<string>();
-    data.data.forEach((c) => {
-      if (c.company) set.add(c.company);
-    });
-    return Array.from(set).sort();
-  }, [data?.data]);
 
   const handleSortChange = (column: NonNullable<CustomerSortState['sortBy']>) => {
     setSorting(column);
@@ -151,6 +156,7 @@ export function CustomerWorkspace() {
       const res = await bulkUpdateCustomerStatus(selectedCustomerIds, status);
       queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
       queryClient.invalidateQueries({ queryKey: customerKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: customerKeys.filterOptions() });
       toast.success(`Updated ${res.updatedCount} customer(s) to ${status}`);
       setSelectedCustomerIds([]);
     } catch (err) {
@@ -168,6 +174,7 @@ export function CustomerWorkspace() {
       const res = await bulkDeleteCustomers(selectedCustomerIds);
       queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
       queryClient.invalidateQueries({ queryKey: customerKeys.stats() });
+      queryClient.invalidateQueries({ queryKey: customerKeys.filterOptions() });
 
       // If open customer was deleted, close drawer
       if (selectedCustomerId && selectedCustomerIds.includes(selectedCustomerId)) {
@@ -182,24 +189,6 @@ export function CustomerWorkspace() {
     } finally {
       setIsBulkPending(false);
     }
-  };
-
-  // Bulk Action: Export Selected
-  const handleExportSelected = () => {
-    if (!data?.data || selectedCustomerIds.length === 0) return;
-    const selectedCustomers = data.data.filter((c) => selectedCustomerIds.includes(c.id));
-    exportCustomersToCsv(selectedCustomers, `selected_customers_${selectedCustomerIds.length}.csv`);
-    toast.success(`Exported ${selectedCustomers.length} selected customer(s) to CSV`);
-  };
-
-  // Export all filtered customers
-  const handleExportFiltered = () => {
-    if (!data?.data || data.data.length === 0) {
-      toast.error('No customers match the current filters to export.');
-      return;
-    }
-    exportCustomersToCsv(data.data, `filtered_customers_page_${data.page}.csv`);
-    toast.success(`Exported ${data.data.length} customer(s) to CSV`);
   };
 
   // Create Customer Handler
@@ -266,14 +255,12 @@ export function CustomerWorkspace() {
       <CustomerToolbar
         searchQuery={params.search}
         onSearchChange={setSearch}
-        totalCount={data?.total ?? 0}
         activeFilterCount={activeFilterCount}
         onToggleFilters={() => setIsFiltersOpen(true)}
         onAddCustomer={() => setIsCreateOpen(true)}
         onImport={() => setIsImportModalOpen(true)}
         onExport={() => setIsExportModalOpen(true)}
         isFetching={isFetching}
-        onRefresh={() => refetch()}
       />
 
       {/* Active Filter Chips Bar */}
@@ -455,8 +442,8 @@ export function CustomerWorkspace() {
       <ExportModal
         isOpen={isExportModalOpen}
         onOpenChange={setIsExportModalOpen}
-        filteredCustomers={data?.data || []}
-        selectedCustomers={(data?.data || []).filter((c) => selectedCustomerIds.includes(c.id))}
+        filteredCustomers={allFilteredCustomers}
+        selectedCustomers={selectedCustomersData}
       />
 
       {/* Import Modal (Excel & CSV) */}

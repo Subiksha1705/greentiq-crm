@@ -8,7 +8,6 @@ import {
   Download,
   Trash2,
   X,
-  CheckSquare,
 } from 'lucide-react';
 import { CustomerStatus } from '@/types/customer';
 

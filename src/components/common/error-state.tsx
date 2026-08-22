@@ -1,7 +1,7 @@
 'use client';
 
 import React from 'react';
-import { AlertCircle, RefreshCw, Home, ArrowLeft } from 'lucide-react';
+import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -44,7 +44,6 @@ import {
   PhoneCall,
   Users,
   FileText,
-  AlertCircle,
   RefreshCw,
   Plus,
   Pencil,
@@ -71,11 +70,11 @@ export function CustomerDetails({
   onEdit,
   onDelete,
 }: CustomerDetailsProps) {
-  const { data: customer, isLoading, isError, error } = useCustomer(customerId);
+  const { data: customer, isLoading, isError } = useCustomer(customerId);
   const updateCustomerMutation = useUpdateCustomer();
 
-  // Selected date in the "Update Last Contact" date picker. Defaults to today.
-  const [selectedContactDate, setSelectedContactDate] = useState<Date>(new Date());
+  // Contact date editing state
+  const [selectedContactDate, setSelectedContactDate] = useState<Date | undefined>(new Date());
 
   // Notes editing state
   const [isEditingNotes, setIsEditingNotes] = useState(false);
@@ -89,14 +88,14 @@ export function CustomerDetails({
   const [interactionSummary, setInteractionSummary] = useState('');
   const [interactionError, setInteractionError] = useState('');
 
-  // Reset states when a new customer opens
-  useEffect(() => {
-    if (isOpen && customer) {
-      setSelectedContactDate(new Date());
-      setIsEditingNotes(false);
-      setDraftNotes(customer.notes || '');
-    }
-  }, [isOpen, customer]);
+  // Reset states during render when a new customer opens
+  const [prevCustomerTrackedId, setPrevCustomerTrackedId] = useState<string | null>(null);
+  if (isOpen && customer && customer.id !== prevCustomerTrackedId) {
+    setPrevCustomerTrackedId(customer.id);
+    setSelectedContactDate(new Date());
+    setIsEditingNotes(false);
+    setDraftNotes(customer.notes || '');
+  }
 
   if (!isOpen) return null;
 

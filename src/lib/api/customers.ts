@@ -12,9 +12,9 @@ import {
   getFollowUpRisk,
   isNeedsAttention,
   matchesAllFilters,
-  RISK_RANK_MAP,
+  sortCustomers,
 } from '../customer-rules';
-import { toCalendarDate, getCalendarDaysDifference } from '../utils';
+import { getCalendarDaysDifference } from '../utils';
 
 // Deterministic error mode state (§5.2)
 type ErrorMode = 'off' | 'next' | 'all';
@@ -56,6 +56,48 @@ function simulateLatency(): Promise<void> {
 }
 
 /**
+ * Fetches distinct company options across the entire dataset independent of pagination.
+ */
+export async function getCustomerFilterOptions(): Promise<{ companies: string[] }> {
+  await simulateLatency();
+  checkErrorInjection();
+
+  const companies = Array.from(
+    new Set(
+      MOCK_CUSTOMERS_STORE.map((c) => c.company)
+        .filter((company): company is string => Boolean(company && company.trim()))
+    )
+  ).sort();
+
+  return { companies };
+}
+
+/**
+ * Resolves multiple customers by their IDs across the full dataset.
+ */
+export async function getCustomersByIds(ids: string[]): Promise<Customer[]> {
+  await simulateLatency();
+  checkErrorInjection();
+
+  const idSet = new Set(ids);
+  return MOCK_CUSTOMERS_STORE.filter((c) => idSet.has(c.id)).map((c) => ({ ...c }));
+}
+
+/**
+ * Lists all customers matching the filters (unpaginated), sorted by the given sort state.
+ */
+export async function listAllFilteredCustomers(
+  params: Omit<CustomerListParams, 'page' | 'pageSize'> = {}
+): Promise<Customer[]> {
+  await simulateLatency();
+  checkErrorInjection();
+
+  const { sortBy = 'name', sortOrder = 'asc' } = params;
+  const filtered = MOCK_CUSTOMERS_STORE.filter((customer) => matchesAllFilters(customer, params));
+  return sortCustomers(filtered, sortBy, sortOrder);
+}
+
+/**
  * Lists customers with full filter, search, sort, and pagination support.
  */
 export async function listCustomers(params: CustomerListParams = {}): Promise<PaginatedCustomerResult> {
@@ -70,36 +112,17 @@ export async function listCustomers(params: CustomerListParams = {}): Promise<Pa
   } = params;
 
   // 1. Filter full dataset
-  let filtered = MOCK_CUSTOMERS_STORE.filter((customer) => matchesAllFilters(customer, params));
+  const filtered = MOCK_CUSTOMERS_STORE.filter((customer) => matchesAllFilters(customer, params));
 
-  // 2. Sort dataset
-  filtered.sort((a, b) => {
-    let result = 0;
-
-    if (sortBy === 'name') {
-      result = a.name.localeCompare(b.name);
-    } else if (sortBy === 'email') {
-      result = a.email.localeCompare(b.email);
-    } else if (sortBy === 'lastContactDate') {
-      const dateA = toCalendarDate(a.lastContactDate).getTime();
-      const dateB = toCalendarDate(b.lastContactDate).getTime();
-      result = dateA - dateB;
-    } else if (sortBy === 'followUpRisk') {
-      // Sort by rank index (low=0, medium=1, high=2), never string compare
-      const rankA = RISK_RANK_MAP[getFollowUpRisk(a.lastContactDate)];
-      const rankB = RISK_RANK_MAP[getFollowUpRisk(b.lastContactDate)];
-      result = rankA - rankB;
-    }
-
-    return sortOrder === 'desc' ? -result : result;
-  });
+  // 2. Sort dataset using centralized sort helper
+  const sorted = sortCustomers(filtered, sortBy, sortOrder);
 
   // 3. Paginate
-  const total = filtered.length;
+  const total = sorted.length;
   const totalPages = Math.ceil(total / pageSize) || 1;
   const validPage = Math.max(1, Math.min(page, totalPages));
   const startIndex = (validPage - 1) * pageSize;
-  const paginatedData = filtered.slice(startIndex, startIndex + pageSize);
+  const paginatedData = sorted.slice(startIndex, startIndex + pageSize);
 
   return {
     data: paginatedData,

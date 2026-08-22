@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import {
   Sheet,
   SheetContent,
@@ -37,14 +37,18 @@ export function CustomerFilters({
   companyOptions = [],
 }: CustomerFiltersProps) {
   // Local DRAFT filter state initialized from committed filters when drawer opens
+  const [prevCommittedFilters, setPrevCommittedFilters] = useState<CustomerFilterState>(committedFilters);
+  const [prevIsOpen, setPrevIsOpen] = useState(isOpen);
   const [draft, setDraft] = useState<CustomerFilterState>(committedFilters);
 
-  // Sync draft state whenever drawer opens or committedFilters change
-  useEffect(() => {
+  // Sync draft state during render whenever drawer opens or committedFilters change
+  if (isOpen !== prevIsOpen || committedFilters !== prevCommittedFilters) {
+    setPrevIsOpen(isOpen);
+    setPrevCommittedFilters(committedFilters);
     if (isOpen) {
       setDraft(committedFilters);
     }
-  }, [isOpen, committedFilters]);
+  }
 
   // Status toggle handler
   const handleStatusToggle = (status: CustomerStatus) => {

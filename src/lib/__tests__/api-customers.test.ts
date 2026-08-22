@@ -8,6 +8,9 @@ import {
   bulkUpdateCustomerStatus,
   bulkDeleteCustomers,
   bulkImportCustomers,
+  getCustomerFilterOptions,
+  getCustomersByIds,
+  listAllFilteredCustomers,
 } from '../api/customers';
 
 describe('Customer API Service Layer', () => {
@@ -98,4 +101,37 @@ describe('Customer API Service Layer', () => {
     const deleteRes = await bulkDeleteCustomers(importedIds);
     expect(deleteRes.deletedCount).toBe(importedIds.length);
   });
+
+  it('fetches full dataset distinct company options (Issue #10)', async () => {
+    const { companies } = await getCustomerFilterOptions();
+    expect(companies).toBeDefined();
+    expect(companies.length).toBeGreaterThanOrEqual(5);
+    expect(companies).toEqual([...companies].sort());
+    // Ensure no empty strings
+    expect(companies.every((c) => c.trim().length > 0)).toBe(true);
+  });
+
+  it('resolves customers across multiple pages by ID (Issue #11)', async () => {
+    // Fetch page 1 and page 2 customers
+    const page1 = await listCustomers({ page: 1, pageSize: 5 });
+    const page2 = await listCustomers({ page: 2, pageSize: 5 });
+
+    const targetIds = [page1.data[0].id, page2.data[0].id];
+    const resolved = await getCustomersByIds(targetIds);
+
+    expect(resolved.length).toBe(2);
+    expect(resolved.map((c) => c.id)).toContain(page1.data[0].id);
+    expect(resolved.map((c) => c.id)).toContain(page2.data[0].id);
+  });
+
+  it('lists all filtered customers unpaginated (Issue #12)', async () => {
+    // Filter by active status
+    const allActive = await listAllFilteredCustomers({ status: ['active'] });
+    const paginatedActive = await listCustomers({ status: ['active'], page: 1, pageSize: 10 });
+
+    expect(allActive.length).toBe(paginatedActive.total);
+    expect(allActive.length).toBeGreaterThan(10);
+    expect(allActive.every((c) => c.status === 'active')).toBe(true);
+  });
 });
+

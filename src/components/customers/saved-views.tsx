@@ -133,8 +133,8 @@ export function SavedViewsList() {
       saveCurrentAsView(newViewName);
       setIsDialogOpen(false);
       setNewViewName('');
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Unable to save view');
     }
   };
 

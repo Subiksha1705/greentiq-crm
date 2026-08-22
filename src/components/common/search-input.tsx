@@ -36,9 +36,14 @@ export function SearchInput({
     onChangeRef.current = onChange;
   }, [onChange]);
 
-  // Synchronize internal state if external value changes (e.g. clear filters clicked or URL state changed)
-  useEffect(() => {
+  // Synchronize internal state if external value changes during render (e.g. clear filters clicked or URL state changed)
+  const [prevExternalValue, setPrevExternalValue] = useState(externalValue);
+  if (externalValue !== prevExternalValue) {
+    setPrevExternalValue(externalValue);
     setSearchTerm(externalValue);
+  }
+
+  useEffect(() => {
     lastEmittedRef.current = externalValue;
   }, [externalValue]);
 

@@ -161,3 +161,34 @@ export function matchesAllFilters(
 
   return true;
 }
+
+/**
+ * Sorts an array of customer records based on specified field and direction.
+ * Follow-up Risk sorting strictly uses numeric rank (low < medium < high).
+ */
+export function sortCustomers(
+  customers: Customer[],
+  sortBy: 'name' | 'email' | 'lastContactDate' | 'followUpRisk' = 'name',
+  sortOrder: 'asc' | 'desc' = 'asc'
+): Customer[] {
+  return [...customers].sort((a, b) => {
+    let result = 0;
+
+    if (sortBy === 'name') {
+      result = a.name.localeCompare(b.name);
+    } else if (sortBy === 'email') {
+      result = a.email.localeCompare(b.email);
+    } else if (sortBy === 'lastContactDate') {
+      const dateA = toCalendarDate(a.lastContactDate).getTime();
+      const dateB = toCalendarDate(b.lastContactDate).getTime();
+      result = dateA - dateB;
+    } else if (sortBy === 'followUpRisk') {
+      const rankA = RISK_RANK_MAP[getFollowUpRisk(a.lastContactDate)];
+      const rankB = RISK_RANK_MAP[getFollowUpRisk(b.lastContactDate)];
+      result = rankA - rankB;
+    }
+
+    return sortOrder === 'desc' ? -result : result;
+  });
+}
+
