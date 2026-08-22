@@ -71,6 +71,9 @@ export interface CreateCustomerInput {
   status: CustomerStatus;
   lastContactDate: string;
   notes?: string;
+  interactions?: Interaction[];
 }
 
-export interface UpdateCustomerInput extends Partial<CreateCustomerInput> {}
+export interface UpdateCustomerInput extends Partial<CreateCustomerInput> {
+  interactions?: Interaction[];
+}

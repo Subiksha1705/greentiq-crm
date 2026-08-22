@@ -172,21 +172,26 @@ export async function updateCustomer(id: string, input: UpdateCustomerInput): Pr
   // Check if last contact date is being updated to append interaction entry
   const isDateUpdated = input.lastContactDate && input.lastContactDate !== existing.lastContactDate;
 
+  let nextInteractions = existing.interactions || [];
+  if (input.interactions !== undefined) {
+    nextInteractions = input.interactions;
+  } else if (isDateUpdated) {
+    nextInteractions = [
+      {
+        id: `int-${Date.now()}`,
+        type: 'call',
+        summary: `Last contact updated to ${input.lastContactDate}.`,
+        date: input.lastContactDate!,
+      },
+      ...nextInteractions,
+    ];
+  }
+
   const updatedCustomer: Customer = {
     ...existing,
     ...input,
+    interactions: nextInteractions,
     updatedAt: nowISO,
-    interactions: isDateUpdated
-      ? [
-          {
-            id: `int-${Date.now()}`,
-            type: 'call',
-            summary: `Last contact updated to ${input.lastContactDate}.`,
-            date: input.lastContactDate!,
-          },
-          ...(existing.interactions || []),
-        ]
-      : existing.interactions,
   };
 
   MOCK_CUSTOMERS_STORE[index] = updatedCustomer;

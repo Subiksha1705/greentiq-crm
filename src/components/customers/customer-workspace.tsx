@@ -6,6 +6,7 @@ import { useCustomers } from '@/hooks/use-customers';
 import { CustomerToolbar } from './customer-toolbar';
 import { CustomerTable } from './customer-table';
 import { CustomerFilters } from './customer-filters';
+import { CustomerDetails } from './customer-details';
 import { DataTablePagination } from '@/components/common/data-table-pagination';
 import { LoadingState } from '@/components/common/loading-state';
 import { FilterChip } from '@/components/common/filter-chip';
@@ -155,6 +156,13 @@ export function CustomerWorkspace() {
         onApplyFilters={setFilters}
         onClearAll={clearFilters}
         companyOptions={companyOptions}
+      />
+
+      {/* Customer Details Drawer */}
+      <CustomerDetails
+        customerId={selectedCustomerId}
+        isOpen={Boolean(selectedCustomerId)}
+        onClose={() => setSelectedCustomerId(null)}
       />
     </div>
   );

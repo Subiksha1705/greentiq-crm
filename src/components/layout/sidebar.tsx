@@ -122,7 +122,9 @@ export function Sidebar({ mobileOpen = false, setMobileOpen }: SidebarProps) {
 
         {/* Saved Views Section */}
         <div className="flex-1 py-2 overflow-y-auto">
-          <SavedViewsList />
+          <React.Suspense fallback={<div className="px-3 py-2 text-[12px] text-[#9CA3AF]">Loading views...</div>}>
+            <SavedViewsList />
+          </React.Suspense>
         </div>
 
         {/* Follow-up Risk Engine Sidebar Card */}
