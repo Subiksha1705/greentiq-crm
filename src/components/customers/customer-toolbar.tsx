@@ -3,7 +3,7 @@
 import React from 'react';
 import { SearchInput } from '@/components/common/search-input';
 import { Button } from '@/components/ui/button';
-import { SlidersHorizontal, Plus, RefreshCw, Download } from 'lucide-react';
+import { SlidersHorizontal, Plus, RefreshCw, Download, UploadCloud } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface CustomerToolbarProps {
@@ -12,6 +12,8 @@ interface CustomerToolbarProps {
   totalCount: number;
   onToggleFilters?: () => void;
   onAddCustomer?: () => void;
+  onExport?: () => void;
+  onImport?: () => void;
   onExportCsv?: () => void;
   activeFilterCount?: number;
   isFetching?: boolean;
@@ -24,11 +26,15 @@ export function CustomerToolbar({
   totalCount,
   onToggleFilters,
   onAddCustomer,
+  onExport,
+  onImport,
   onExportCsv,
   activeFilterCount = 0,
   isFetching = false,
   onRefresh,
 }: CustomerToolbarProps) {
+  const handleExportClick = onExport || onExportCsv;
+
   return (
     <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pb-2">
       {/* Search Input */}
@@ -45,17 +51,31 @@ export function CustomerToolbar({
 
       {/* Action Controls */}
       <div className="flex items-center gap-2 shrink-0">
-        {/* Export CSV Button */}
-        {onExportCsv && (
+        {/* Import Button */}
+        {onImport && (
           <Button
             variant="outline"
             size="sm"
-            onClick={onExportCsv}
-            className="h-[36px] px-[14px] py-[8px] gap-1.5 text-[14px] font-medium border-[#D1D5DB] bg-white text-[#374151] hover:bg-[#F9FAFB] rounded-[6px] shadow-xs"
-            title="Export filtered customer list as CSV"
+            onClick={onImport}
+            className="h-[36px] px-[12px] py-[8px] gap-1.5 text-[14px] font-medium border-[#D1D5DB] bg-white text-[#374151] hover:bg-[#F9FAFB] rounded-[6px] shadow-xs"
+            title="Import customers from Excel or CSV file"
+          >
+            <UploadCloud className="h-4 w-4 text-[#16A34A]" />
+            <span>Import</span>
+          </Button>
+        )}
+
+        {/* Export Button */}
+        {handleExportClick && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={handleExportClick}
+            className="h-[36px] px-[12px] py-[8px] gap-1.5 text-[14px] font-medium border-[#D1D5DB] bg-white text-[#374151] hover:bg-[#F9FAFB] rounded-[6px] shadow-xs"
+            title="Export customers to Excel or CSV"
           >
             <Download className="h-4 w-4 text-[#4B5563]" />
-            <span>Export CSV</span>
+            <span>Export</span>
           </Button>
         )}
 

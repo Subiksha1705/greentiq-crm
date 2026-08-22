@@ -17,6 +17,8 @@ import { CustomerFilters } from './customer-filters';
 import { CustomerDetails } from './customer-details';
 import { CustomerForm } from './customer-form';
 import { BulkActionsBar } from './bulk-actions-bar';
+import { ExportModal } from './export-modal';
+import { ImportModal } from './import-modal';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { DataTablePagination } from '@/components/common/data-table-pagination';
 import { LoadingState } from '@/components/common/loading-state';
@@ -68,6 +70,8 @@ export function CustomerWorkspace() {
   const [selectedCustomerIds, setSelectedCustomerIds] = useState<string[]>([]);
   const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
   const [isBulkPending, setIsBulkPending] = useState(false);
+  const [isExportModalOpen, setIsExportModalOpen] = useState(false);
+  const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 
   // Active customer for editing
   const { data: editingCustomer } = useCustomer(editingCustomerId);
@@ -240,7 +244,8 @@ export function CustomerWorkspace() {
         activeFilterCount={activeFilterCount}
         onToggleFilters={() => setIsFiltersOpen(true)}
         onAddCustomer={() => setIsCreateOpen(true)}
-        onExportCsv={handleExportFiltered}
+        onImport={() => setIsImportModalOpen(true)}
+        onExport={() => setIsExportModalOpen(true)}
         isFetching={isFetching}
         onRefresh={() => refetch()}
       />
@@ -414,10 +419,24 @@ export function CustomerWorkspace() {
       <BulkActionsBar
         selectedCount={selectedCustomerIds.length}
         onUpdateStatus={handleBulkUpdateStatus}
-        onExportSelected={handleExportSelected}
+        onExportSelected={() => setIsExportModalOpen(true)}
         onDeleteSelected={() => setIsBulkDeleteOpen(true)}
         onClearSelection={handleClearSelection}
         isPending={isBulkPending}
+      />
+
+      {/* Export Modal (Excel & CSV) */}
+      <ExportModal
+        isOpen={isExportModalOpen}
+        onOpenChange={setIsExportModalOpen}
+        filteredCustomers={data?.data || []}
+        selectedCustomers={(data?.data || []).filter((c) => selectedCustomerIds.includes(c.id))}
+      />
+
+      {/* Import Modal (Excel & CSV) */}
+      <ImportModal
+        isOpen={isImportModalOpen}
+        onOpenChange={setIsImportModalOpen}
       />
     </div>
   );

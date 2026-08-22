@@ -266,6 +266,44 @@ export async function bulkDeleteCustomers(
 }
 
 /**
+ * Bulk imports a batch of customer records.
+ */
+export async function bulkImportCustomers(
+  inputs: CreateCustomerInput[]
+): Promise<{ importedCount: number }> {
+  await simulateLatency();
+  checkErrorInjection();
+
+  const nowISO = new Date().toISOString().split('T')[0];
+
+  const newCustomers: Customer[] = inputs.map((input, index) => ({
+    id: `cust-imp-${Date.now()}-${index}`,
+    name: input.name,
+    email: input.email,
+    phone: input.phone,
+    company: input.company,
+    status: input.status,
+    lastContactDate: input.lastContactDate,
+    notes: input.notes,
+    interactions: [
+      {
+        id: `int-imp-${Date.now()}-${index}`,
+        type: 'note',
+        summary: 'Imported via batch dataset upload.',
+        date: input.lastContactDate,
+      },
+    ],
+    createdAt: nowISO,
+    updatedAt: nowISO,
+  }));
+
+  // Prepend to store
+  MOCK_CUSTOMERS_STORE.unshift(...newCustomers);
+
+  return { importedCount: newCustomers.length };
+}
+
+/**
  * Computes portfolio KPIs over the FULL dataset (never a paginated slice).
  * §5.2: getCustomerStats().needsAttention MUST call isNeedsAttention() per customer.
  */
