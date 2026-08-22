@@ -5,11 +5,13 @@ import { Customer, CustomerSortState } from '@/types/customer';
 import {
   Table,
   TableBody,
+  TableCell,
   TableHead,
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
 import { CustomerRow } from './customer-row';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Button } from '@/components/ui/button';
 import { ArrowUpDown, ArrowUp, ArrowDown, Users } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -66,6 +68,9 @@ interface CustomerTableProps {
   onSortChange: (column: NonNullable<CustomerSortState['sortBy']>) => void;
   onSelectCustomer?: (id: string) => void;
   onClearFilters?: () => void;
+  selectedCustomerIds?: string[];
+  onToggleSelectCustomer?: (id: string) => void;
+  onToggleSelectAll?: () => void;
 }
 
 export function CustomerTable({
@@ -75,7 +80,15 @@ export function CustomerTable({
   onSortChange,
   onSelectCustomer,
   onClearFilters,
+  selectedCustomerIds = [],
+  onToggleSelectCustomer,
+  onToggleSelectAll,
 }: CustomerTableProps) {
+  const allCurrentPageSelected =
+    customers.length > 0 && customers.every((c) => selectedCustomerIds.includes(c.id));
+  const someCurrentPageSelected =
+    customers.some((c) => selectedCustomerIds.includes(c.id)) && !allCurrentPageSelected;
+
   const renderSortHeader = (
     label: string,
     columnKey: NonNullable<CustomerSortState['sortBy']>,
@@ -137,6 +150,15 @@ export function CustomerTable({
       <Table className="min-w-max">
         <TableHeader className="bg-[#F9FAFB]">
           <TableRow className="hover:bg-[#F9FAFB] border-b border-[#E5E7EB]">
+            {/* Header Select All Checkbox */}
+            <TableHead className="w-[44px] px-3 py-2.5 text-center">
+              <Checkbox
+                checked={allCurrentPageSelected ? true : someCurrentPageSelected ? 'indeterminate' : false}
+                onCheckedChange={() => onToggleSelectAll?.()}
+                aria-label="Select all customers on page"
+                className="border-[#D1D5DB] data-[state=checked]:bg-[#16A34A] data-[state=checked]:border-[#16A34A]"
+              />
+            </TableHead>
             {renderSortHeader('Name', 'name', 'w-[220px]')}
             {renderSortHeader('Email', 'email', 'w-[220px]')}
             <ResizableHeader className="text-[#374151]" defaultWidth={140}>Phone</ResizableHeader>
@@ -151,6 +173,9 @@ export function CustomerTable({
             <CustomerRow
               key={customer.id}
               customer={customer}
+              isSelected={selectedCustomerIds.includes(customer.id)}
+              isRowChecked={selectedCustomerIds.includes(customer.id)}
+              onToggleCheck={onToggleSelectCustomer}
               onSelectCustomer={onSelectCustomer}
             />
           ))}

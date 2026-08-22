@@ -1,5 +1,6 @@
 import {
   Customer,
+  CustomerStatus,
   CustomerListParams,
   CustomerStats,
   CreateCustomerInput,
@@ -212,6 +213,56 @@ export async function deleteCustomer(id: string): Promise<{ success: boolean }> 
 
   MOCK_CUSTOMERS_STORE.splice(index, 1);
   return { success: true };
+}
+
+/**
+ * Bulk updates the status of multiple customers.
+ */
+export async function bulkUpdateCustomerStatus(
+  ids: string[],
+  status: CustomerStatus
+): Promise<{ updatedCount: number }> {
+  await simulateLatency();
+  checkErrorInjection();
+
+  const idSet = new Set(ids);
+  let updatedCount = 0;
+  const nowISO = new Date().toISOString().split('T')[0];
+
+  for (let i = 0; i < MOCK_CUSTOMERS_STORE.length; i++) {
+    if (idSet.has(MOCK_CUSTOMERS_STORE[i].id)) {
+      MOCK_CUSTOMERS_STORE[i] = {
+        ...MOCK_CUSTOMERS_STORE[i],
+        status,
+        updatedAt: nowISO,
+      };
+      updatedCount++;
+    }
+  }
+
+  return { updatedCount };
+}
+
+/**
+ * Bulk deletes multiple customers.
+ */
+export async function bulkDeleteCustomers(
+  ids: string[]
+): Promise<{ deletedCount: number }> {
+  await simulateLatency();
+  checkErrorInjection();
+
+  const idSet = new Set(ids);
+  const initialLength = MOCK_CUSTOMERS_STORE.length;
+
+  for (let i = MOCK_CUSTOMERS_STORE.length - 1; i >= 0; i--) {
+    if (idSet.has(MOCK_CUSTOMERS_STORE[i].id)) {
+      MOCK_CUSTOMERS_STORE.splice(i, 1);
+    }
+  }
+
+  const deletedCount = initialLength - MOCK_CUSTOMERS_STORE.length;
+  return { deletedCount };
 }
 
 /**

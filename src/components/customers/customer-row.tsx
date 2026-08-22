@@ -3,6 +3,7 @@
 import React from 'react';
 import { Customer } from '@/types/customer';
 import { TableCell, TableRow } from '@/components/ui/table';
+import { Checkbox } from '@/components/ui/checkbox';
 import { StatusBadge } from '@/components/common/status-badge';
 import { FollowUpRiskBadge } from './follow-up-risk-badge';
 import { getFollowUpRisk } from '@/lib/customer-rules';
@@ -12,10 +13,18 @@ import { format, parseISO } from 'date-fns';
 interface CustomerRowProps {
   customer: Customer;
   isSelected?: boolean;
+  isRowChecked?: boolean;
+  onToggleCheck?: (id: string) => void;
   onSelectCustomer?: (id: string) => void;
 }
 
-export function CustomerRow({ customer, isSelected = false, onSelectCustomer }: CustomerRowProps) {
+export function CustomerRow({
+  customer,
+  isSelected = false,
+  isRowChecked = false,
+  onToggleCheck,
+  onSelectCustomer,
+}: CustomerRowProps) {
   const derivedRisk = getFollowUpRisk(customer.lastContactDate);
   const daysDiff = getCalendarDaysDifference(customer.lastContactDate);
 
@@ -43,11 +52,23 @@ export function CustomerRow({ customer, isSelected = false, onSelectCustomer }: 
     <TableRow
       onClick={() => onSelectCustomer?.(customer.id)}
       className={`cursor-pointer group border-b border-[#F1F5F9] transition-colors ${
-        isSelected
+        isRowChecked
+          ? 'bg-[#F0FDF4]'
+          : isSelected
           ? 'bg-[#F0FDF4] border-l-2 border-l-[#16A34A]'
           : 'bg-white hover:bg-[#FAFAFA]'
       }`}
     >
+      {/* Checkbox Column */}
+      <TableCell className="w-[44px] px-3 py-3 text-center" onClick={(e) => e.stopPropagation()}>
+        <Checkbox
+          checked={isRowChecked}
+          onCheckedChange={() => onToggleCheck?.(customer.id)}
+          aria-label={`Select ${customer.name}`}
+          className="border-[#D1D5DB] data-[state=checked]:bg-[#16A34A] data-[state=checked]:border-[#16A34A]"
+        />
+      </TableCell>
+
       {/* Name */}
       <TableCell className="px-4 py-3 text-[14px] font-medium text-[#1A1D23]">
         <div className="flex items-center gap-3">

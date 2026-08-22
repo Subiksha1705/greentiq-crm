@@ -3,7 +3,7 @@
 import React from 'react';
 import { SearchInput } from '@/components/common/search-input';
 import { Button } from '@/components/ui/button';
-import { SlidersHorizontal, Plus, RefreshCw } from 'lucide-react';
+import { SlidersHorizontal, Plus, RefreshCw, Download } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface CustomerToolbarProps {
@@ -12,6 +12,7 @@ interface CustomerToolbarProps {
   totalCount: number;
   onToggleFilters?: () => void;
   onAddCustomer?: () => void;
+  onExportCsv?: () => void;
   activeFilterCount?: number;
   isFetching?: boolean;
   onRefresh?: () => void;
@@ -23,6 +24,7 @@ export function CustomerToolbar({
   totalCount,
   onToggleFilters,
   onAddCustomer,
+  onExportCsv,
   activeFilterCount = 0,
   isFetching = false,
   onRefresh,
@@ -43,6 +45,20 @@ export function CustomerToolbar({
 
       {/* Action Controls */}
       <div className="flex items-center gap-2 shrink-0">
+        {/* Export CSV Button */}
+        {onExportCsv && (
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onExportCsv}
+            className="h-[36px] px-[14px] py-[8px] gap-1.5 text-[14px] font-medium border-[#D1D5DB] bg-white text-[#374151] hover:bg-[#F9FAFB] rounded-[6px] shadow-xs"
+            title="Export filtered customer list as CSV"
+          >
+            <Download className="h-4 w-4 text-[#4B5563]" />
+            <span>Export CSV</span>
+          </Button>
+        )}
+
         {/* Filter Drawer Toggle */}
         <Button
           variant="outline"

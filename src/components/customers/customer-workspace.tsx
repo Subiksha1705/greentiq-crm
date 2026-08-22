@@ -7,11 +7,16 @@ import { useCustomer } from '@/hooks/use-customer';
 import { useCreateCustomer } from '@/hooks/use-create-customer';
 import { useUpdateCustomer } from '@/hooks/use-update-customer';
 import { useDeleteCustomer } from '@/hooks/use-delete-customer';
+import { useQueryClient } from '@tanstack/react-query';
+import { customerKeys } from '@/lib/query-keys';
+import { bulkUpdateCustomerStatus, bulkDeleteCustomers } from '@/lib/api/customers';
+import { exportCustomersToCsv } from '@/lib/csv';
 import { CustomerToolbar } from './customer-toolbar';
 import { CustomerTable } from './customer-table';
 import { CustomerFilters } from './customer-filters';
 import { CustomerDetails } from './customer-details';
 import { CustomerForm } from './customer-form';
+import { BulkActionsBar } from './bulk-actions-bar';
 import { ConfirmDialog } from '@/components/common/confirm-dialog';
 import { DataTablePagination } from '@/components/common/data-table-pagination';
 import { LoadingState } from '@/components/common/loading-state';
@@ -24,12 +29,15 @@ import {
   DialogTitle,
   DialogDescription,
 } from '@/components/ui/dialog';
-import { CustomerSortState } from '@/types/customer';
+import { CustomerSortState, CustomerStatus } from '@/types/customer';
 import { CustomerFormValues } from '@/lib/validations/customer';
 import { X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { toast } from 'sonner';
 
 export function CustomerWorkspace() {
+  const queryClient = useQueryClient();
+
   const {
     params,
     setSearch,
@@ -56,6 +64,11 @@ export function CustomerWorkspace() {
   const [editingCustomerId, setEditingCustomerId] = useState<string | null>(null);
   const [deletingCustomerId, setDeletingCustomerId] = useState<string | null>(null);
 
+  // Bulk Selection States
+  const [selectedCustomerIds, setSelectedCustomerIds] = useState<string[]>([]);
+  const [isBulkDeleteOpen, setIsBulkDeleteOpen] = useState(false);
+  const [isBulkPending, setIsBulkPending] = useState(false);
+
   // Active customer for editing
   const { data: editingCustomer } = useCustomer(editingCustomerId);
 
@@ -75,6 +88,88 @@ export function CustomerWorkspace() {
 
   const handleSelectCustomer = (id: string) => {
     setSelectedCustomerId(id);
+  };
+
+  // Bulk selection toggles
+  const handleToggleSelectCustomer = (id: string) => {
+    setSelectedCustomerIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
+    );
+  };
+
+  const handleToggleSelectAll = () => {
+    if (!data?.data) return;
+    const currentPageIds = data.data.map((c) => c.id);
+    const allSelected = currentPageIds.every((id) => selectedCustomerIds.includes(id));
+
+    if (allSelected) {
+      setSelectedCustomerIds((prev) => prev.filter((id) => !currentPageIds.includes(id)));
+    } else {
+      setSelectedCustomerIds((prev) => Array.from(new Set([...prev, ...currentPageIds])));
+    }
+  };
+
+  const handleClearSelection = () => {
+    setSelectedCustomerIds([]);
+  };
+
+  // Bulk Action: Status Change
+  const handleBulkUpdateStatus = async (status: CustomerStatus) => {
+    if (selectedCustomerIds.length === 0) return;
+    try {
+      setIsBulkPending(true);
+      const res = await bulkUpdateCustomerStatus(selectedCustomerIds, status);
+      queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: customerKeys.stats() });
+      toast.success(`Updated ${res.updatedCount} customer(s) to ${status}`);
+      setSelectedCustomerIds([]);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to update selected customers');
+    } finally {
+      setIsBulkPending(false);
+    }
+  };
+
+  // Bulk Action: Delete Selected
+  const handleConfirmBulkDelete = async () => {
+    if (selectedCustomerIds.length === 0) return;
+    try {
+      setIsBulkPending(true);
+      const res = await bulkDeleteCustomers(selectedCustomerIds);
+      queryClient.invalidateQueries({ queryKey: customerKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: customerKeys.stats() });
+
+      // If open customer was deleted, close drawer
+      if (selectedCustomerId && selectedCustomerIds.includes(selectedCustomerId)) {
+        setSelectedCustomerId(null);
+      }
+
+      toast.success(`Deleted ${res.deletedCount} customer record(s)`);
+      setSelectedCustomerIds([]);
+      setIsBulkDeleteOpen(false);
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : 'Failed to delete selected customers');
+    } finally {
+      setIsBulkPending(false);
+    }
+  };
+
+  // Bulk Action: Export Selected
+  const handleExportSelected = () => {
+    if (!data?.data || selectedCustomerIds.length === 0) return;
+    const selectedCustomers = data.data.filter((c) => selectedCustomerIds.includes(c.id));
+    exportCustomersToCsv(selectedCustomers, `selected_customers_${selectedCustomerIds.length}.csv`);
+    toast.success(`Exported ${selectedCustomers.length} selected customer(s) to CSV`);
+  };
+
+  // Export all filtered customers
+  const handleExportFiltered = () => {
+    if (!data?.data || data.data.length === 0) {
+      toast.error('No customers match the current filters to export.');
+      return;
+    }
+    exportCustomersToCsv(data.data, `filtered_customers_page_${data.page}.csv`);
+    toast.success(`Exported ${data.data.length} customer(s) to CSV`);
   };
 
   // Create Customer Handler
@@ -124,7 +219,7 @@ export function CustomerWorkspace() {
   };
 
   return (
-    <div className="space-y-6 max-w-7xl mx-auto pb-8">
+    <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-4">
         <div>
@@ -145,6 +240,7 @@ export function CustomerWorkspace() {
         activeFilterCount={activeFilterCount}
         onToggleFilters={() => setIsFiltersOpen(true)}
         onAddCustomer={() => setIsCreateOpen(true)}
+        onExportCsv={handleExportFiltered}
         isFetching={isFetching}
         onRefresh={() => refetch()}
       />
@@ -194,6 +290,9 @@ export function CustomerWorkspace() {
             onSortChange={handleSortChange}
             onSelectCustomer={handleSelectCustomer}
             onClearFilters={clearFilters}
+            selectedCustomerIds={selectedCustomerIds}
+            onToggleSelectCustomer={handleToggleSelectCustomer}
+            onToggleSelectAll={handleToggleSelectAll}
           />
 
           <DataTablePagination
@@ -287,7 +386,7 @@ export function CustomerWorkspace() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Confirmation Dialog */}
+      {/* Single Delete Confirmation Dialog */}
       <ConfirmDialog
         isOpen={Boolean(deletingCustomerId)}
         onOpenChange={(open) => !open && setDeletingCustomerId(null)}
@@ -297,6 +396,28 @@ export function CustomerWorkspace() {
         variant="destructive"
         isPending={deleteCustomerMutation.isPending}
         onConfirm={handleDeleteCustomer}
+      />
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={isBulkDeleteOpen}
+        onOpenChange={setIsBulkDeleteOpen}
+        title={`Delete ${selectedCustomerIds.length} Customer Records`}
+        description={`Are you sure you want to permanently delete the ${selectedCustomerIds.length} selected customer records? This cannot be undone.`}
+        confirmLabel="Delete Selected Customers"
+        variant="destructive"
+        isPending={isBulkPending}
+        onConfirm={handleConfirmBulkDelete}
+      />
+
+      {/* Floating Bulk Actions Bar */}
+      <BulkActionsBar
+        selectedCount={selectedCustomerIds.length}
+        onUpdateStatus={handleBulkUpdateStatus}
+        onExportSelected={handleExportSelected}
+        onDeleteSelected={() => setIsBulkDeleteOpen(true)}
+        onClearSelection={handleClearSelection}
+        isPending={isBulkPending}
       />
     </div>
   );

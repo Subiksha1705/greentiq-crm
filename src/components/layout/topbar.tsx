@@ -5,9 +5,10 @@ import { Menu, Search } from 'lucide-react';
 
 interface TopbarProps {
   onOpenMobileSidebar: () => void;
+  onOpenCommandPalette?: () => void;
 }
 
-export function Topbar({ onOpenMobileSidebar }: TopbarProps) {
+export function Topbar({ onOpenMobileSidebar, onOpenCommandPalette }: TopbarProps) {
   return (
     <header className="sticky top-0 z-30 flex items-center justify-between h-16 px-4 lg:px-8 border-b border-[#E5E7EB] bg-white/95 backdrop-blur-md">
       <div className="flex items-center gap-3">
@@ -19,16 +20,19 @@ export function Topbar({ onOpenMobileSidebar }: TopbarProps) {
           <Menu className="w-5 h-5" />
         </button>
 
-        {/* Global Search Bar Placeholder */}
-        <div className="relative hidden sm:flex items-center w-64 md:w-80">
-          <Search className="absolute left-3 w-4 h-4 text-[#9CA3AF]" />
+        {/* Global Search Bar (opens ⌘K Command Palette) */}
+        <div
+          onClick={onOpenCommandPalette}
+          className="relative hidden sm:flex items-center w-64 md:w-80 cursor-pointer group"
+        >
+          <Search className="absolute left-3 w-4 h-4 text-[#9CA3AF] group-hover:text-[#16A34A] transition-colors" />
           <input
             type="text"
             readOnly
-            placeholder="Search customers or views (⌘K)..."
-            className="w-full pl-9 pr-12 py-2 text-[14px] leading-[1.5] rounded-[6px] border border-[#D1D5DB] bg-[#F9FAFB] text-[#1A1D23] placeholder:text-[#9CA3AF] cursor-pointer hover:border-[#9CA3AF] transition-colors focus:outline-none focus:ring-2 focus:ring-[#16A34A]"
+            placeholder="Search workspace (⌘K)..."
+            className="w-full pl-9 pr-12 py-2 text-[14px] leading-[1.5] rounded-[6px] border border-[#D1D5DB] bg-[#F9FAFB] text-[#1A1D23] placeholder:text-[#9CA3AF] cursor-pointer hover:border-[#16A34A] transition-colors focus:outline-none"
           />
-          <kbd className="absolute right-2.5 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-[#6B7280] bg-white border border-[#D1D5DB] rounded-[4px]">
+          <kbd className="absolute right-2.5 px-1.5 py-0.5 text-[10px] font-mono font-semibold text-[#6B7280] bg-white border border-[#D1D5DB] rounded-[4px] shadow-2xs">
             ⌘K
           </kbd>
         </div>
