@@ -16,6 +16,7 @@ import { CustomerFilterState, CustomerStatus, RiskLevel } from '@/types/customer
 import { SlidersHorizontal, RotateCcw, Check, Calendar as CalendarIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { DatePicker } from '@/components/ui/date-picker';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { format } from 'date-fns';
 
 interface CustomerFiltersProps {
@@ -258,17 +259,14 @@ export function CustomerFilters({
               <label className="text-[12px] font-medium text-[#4B5563]">
                 Phone Filter (Partial Match)
               </label>
-              <Input
-                type="text"
-                placeholder="e.g. 555-0199"
+              <PhoneInput
                 value={draft.phone || ''}
-                onChange={(e) =>
+                onChange={(val) =>
                   setDraft((prev) => ({
                     ...prev,
-                    phone: e.target.value || undefined,
+                    phone: val || undefined,
                   }))
                 }
-                className="h-9 text-[14px] border-[#D1D5DB] rounded-[6px] focus-visible:ring-[#16A34A]"
               />
             </div>
           </div>

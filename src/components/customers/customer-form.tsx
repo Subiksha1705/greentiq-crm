@@ -9,6 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { DatePicker } from '@/components/ui/date-picker';
+import { PhoneInput } from '@/components/ui/phone-input';
 import {
   Select,
   SelectContent,
@@ -111,11 +112,16 @@ export function CustomerForm({
           <label className="text-[12px] font-semibold text-[#374151]">
             Phone Number <span className="text-[#EF4444]">*</span>
           </label>
-          <Input
-            {...register('phone')}
-            placeholder="+1 (555) 234-5678"
-            className="h-9 text-[14px] border-[#D1D5DB]"
-            disabled={isSubmitting}
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <PhoneInput
+                value={field.value}
+                onChange={field.onChange}
+                disabled={isSubmitting}
+              />
+            )}
           />
           {errors.phone && (
             <p className="text-[12px] text-[#EF4444]">{errors.phone.message}</p>
