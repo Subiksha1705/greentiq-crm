@@ -93,7 +93,15 @@ function SortableItem({ view, isSelected, onSelect, onDelete }: SortableItemProp
   );
 }
 
+const emptySubscribe = () => () => {};
+
 export function SavedViewsList() {
+  const mounted = React.useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
+
   const { views, selectedViewId, saveCustomView, deleteView, reorderViews } = useSavedViews();
   const { params: currentFilters, setFilters, clearFilters } = useCustomerFilters();
   const { data: filterOptionsData } = useCustomerFilterOptions();
@@ -126,7 +134,6 @@ export function SavedViewsList() {
 
   const handleSelectView = (view: SavedView) => {
     const payload = typeof view.filters === 'function' ? view.filters() : view.filters;
-    // Set filters applies filters and navigates to /customers automatically if on dashboard
     setFilters(payload);
   };
 
@@ -178,26 +185,59 @@ export function SavedViewsList() {
       />
 
       <div className="px-2 space-y-0.5 pb-4">
-        <DndContext
-          sensors={sensors}
-          collisionDetection={closestCenter}
-          onDragEnd={handleDragEnd}
-        >
-          <SortableContext
-            items={views.map(v => v.id)}
-            strategy={verticalListSortingStrategy}
-          >
-            {views.map((view) => (
-              <SortableItem
+        {!mounted ? (
+          /* Server / Pre-hydration Static Rendering */
+          views.map((view) => {
+            const isSelected = view.id === selectedViewId;
+            return (
+              <div
                 key={view.id}
-                view={view}
-                isSelected={view.id === selectedViewId}
-                onSelect={handleSelectView}
-                onDelete={(id) => setDeletingViewId(id)}
-              />
-            ))}
-          </SortableContext>
-        </DndContext>
+                className={cn(
+                  "flex items-center justify-between group rounded-[6px] px-2 py-1.5 transition-colors text-[14px]",
+                  isSelected ? "bg-[var(--accent)] text-[var(--primary)] font-semibold" : "text-[var(--text-secondary)] hover:bg-[var(--surface-tertiary)] hover:text-[var(--text-primary)]"
+                )}
+              >
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <div className="opacity-0 p-0.5">
+                    <GripVertical className="h-4 w-4" />
+                  </div>
+                  <button
+                    className="flex-1 text-left truncate py-0.5 outline-none"
+                    onClick={() => handleSelectView(view)}
+                  >
+                    {view.name}
+                  </button>
+                </div>
+                <div className="flex items-center gap-1 shrink-0">
+                  {isSelected && <CheckCircle2 className="h-4 w-4 text-[var(--primary)]" />}
+                </div>
+              </div>
+            );
+          })
+        ) : (
+          /* Client-Side DndContext with deterministic ID */
+          <DndContext
+            id="saved-views-dnd-context"
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={views.map(v => v.id)}
+              strategy={verticalListSortingStrategy}
+            >
+              {views.map((view) => (
+                <SortableItem
+                  key={view.id}
+                  view={view}
+                  isSelected={view.id === selectedViewId}
+                  onSelect={handleSelectView}
+                  onDelete={(id) => setDeletingViewId(id)}
+                />
+              ))}
+            </SortableContext>
+          </DndContext>
+        )}
       </div>
     </div>
   );
