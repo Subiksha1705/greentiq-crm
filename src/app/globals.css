@@ -1,26 +1,141 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --background: 210 40% 98%;
+    --foreground: 222 47% 11%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 11%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 11%;
+
+    --primary: 158 64% 40%;
+    --primary-foreground: 210 40% 98%;
+
+    --secondary: 210 40% 96%;
+    --secondary-foreground: 222 47% 11%;
+
+    --muted: 210 40% 94%;
+    --muted-foreground: 215 16% 47%;
+
+    --accent: 158 60% 95%;
+    --accent-foreground: 158 64% 30%;
+
+    --destructive: 0 84% 60%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 214 32% 91%;
+    --input: 214 32% 91%;
+    --ring: 158 64% 40%;
+
+    --radius: 0.5rem;
+
+    /* Status & Risk Token Palette (WCAG AA Compliant) */
+    --risk-low-bg: 152 76% 94%;
+    --risk-low-text: 158 75% 26%;
+    --risk-low-border: 152 65% 80%;
+
+    --risk-medium-bg: 38 92% 94%;
+    --risk-medium-text: 32 95% 32%;
+    --risk-medium-border: 38 85% 80%;
+
+    --risk-high-bg: 355 100% 95%;
+    --risk-high-text: 355 84% 38%;
+    --risk-high-border: 355 90% 84%;
+
+    --status-active-bg: 152 76% 94%;
+    --status-active-text: 158 75% 26%;
+    --status-inactive-bg: 210 40% 94%;
+    --status-inactive-text: 215 25% 35%;
+  }
+
+  .dark {
+    --background: 222 47% 7%;
+    --foreground: 210 40% 98%;
+
+    --card: 222 47% 10%;
+    --card-foreground: 210 40% 98%;
+
+    --popover: 222 47% 10%;
+    --popover-foreground: 210 40% 98%;
+
+    --primary: 158 64% 45%;
+    --primary-foreground: 222 47% 7%;
+
+    --secondary: 217 33% 17%;
+    --secondary-foreground: 210 40% 98%;
+
+    --muted: 217 33% 15%;
+    --muted-foreground: 215 20% 65%;
+
+    --accent: 158 50% 18%;
+    --accent-foreground: 158 64% 80%;
+
+    --destructive: 0 62% 40%;
+    --destructive-foreground: 210 40% 98%;
+
+    --border: 217 33% 18%;
+    --input: 217 33% 18%;
+    --ring: 158 64% 45%;
+
+    /* Dark Mode Status & Risk Tokens */
+    --risk-low-bg: 158 50% 15%;
+    --risk-low-text: 152 80% 70%;
+    --risk-low-border: 158 50% 25%;
+
+    --risk-medium-bg: 32 50% 16%;
+    --risk-medium-text: 38 90% 70%;
+    --risk-medium-border: 32 50% 25%;
+
+    --risk-high-bg: 355 50% 16%;
+    --risk-high-text: 355 90% 75%;
+    --risk-high-border: 355 50% 25%;
+
+    --status-active-bg: 158 50% 15%;
+    --status-active-text: 152 80% 70%;
+    --status-inactive-bg: 217 33% 15%;
+    --status-inactive-text: 215 20% 65%;
   }
 }
 
+* {
+  border-color: hsl(var(--border));
+}
+
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-feature-settings: "rlig" 1, "calt" 1;
+  min-height: 100vh;
+}
+
+/* Glassmorphism helpers */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+}
+
+.dark .glass-panel {
+  background: rgba(15, 23, 42, 0.85);
+  border: 1px solid rgba(30, 41, 59, 0.8);
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: hsl(var(--muted-foreground) / 0.3);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: hsl(var(--muted-foreground) / 0.5);
 }
