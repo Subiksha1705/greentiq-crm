@@ -77,11 +77,7 @@ export function CommandPalette({
           <CommandItem
             onSelect={() =>
               handleSelect(() => {
-                if (onAddCustomer) {
-                  onAddCustomer();
-                } else {
-                  router.push('/customers');
-                }
+                router.push('/customers?action=add');
               })
             }
           >
@@ -92,11 +88,7 @@ export function CommandPalette({
           <CommandItem
             onSelect={() =>
               handleSelect(() => {
-                if (onOpenFilters) {
-                  onOpenFilters();
-                } else {
-                  router.push('/customers');
-                }
+                router.push('/customers?action=filter');
               })
             }
           >
@@ -104,18 +96,16 @@ export function CommandPalette({
             <span>Open Advanced Filters</span>
           </CommandItem>
 
-          {onExportCsv && (
-            <CommandItem
-              onSelect={() =>
-                handleSelect(() => {
-                  onExportCsv();
-                })
-              }
-            >
-              <Download className="mr-2 h-4 w-4 text-[#D97706]" />
-              <span>Export Customers (CSV)</span>
-            </CommandItem>
-          )}
+          <CommandItem
+            onSelect={() =>
+              handleSelect(() => {
+                router.push('/customers?action=export');
+              })
+            }
+          >
+            <Download className="mr-2 h-4 w-4 text-[#D97706]" />
+            <span>Export Customers (Excel / CSV)</span>
+          </CommandItem>
         </CommandGroup>
 
         <CommandSeparator />

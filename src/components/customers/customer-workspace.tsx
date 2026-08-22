@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
+import { useRouter, useSearchParams, usePathname } from 'next/navigation';
 import { useCustomerFilters } from '@/hooks/use-customer-filters';
 import { useCustomers } from '@/hooks/use-customers';
 import { useCustomer } from '@/hooks/use-customer';
@@ -39,6 +40,9 @@ import { toast } from 'sonner';
 
 export function CustomerWorkspace() {
   const queryClient = useQueryClient();
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
 
   const {
     params,
@@ -72,6 +76,28 @@ export function CustomerWorkspace() {
   const [isBulkPending, setIsBulkPending] = useState(false);
   const [isExportModalOpen, setIsExportModalOpen] = useState(false);
   const [isImportModalOpen, setIsImportModalOpen] = useState(false);
+
+  // Handle Quick Actions from Command Palette or URL query parameters
+  useEffect(() => {
+    const action = searchParams.get('action');
+    if (!action) return;
+
+    if (action === 'add') {
+      setIsCreateOpen(true);
+    } else if (action === 'filter') {
+      setIsFiltersOpen(true);
+    } else if (action === 'export') {
+      setIsExportModalOpen(true);
+    } else if (action === 'import') {
+      setIsImportModalOpen(true);
+    }
+
+    // Clean up action param from URL without triggering full reload
+    const current = new URLSearchParams(Array.from(searchParams.entries()));
+    current.delete('action');
+    const newQuery = current.toString() ? `?${current.toString()}` : '';
+    router.replace(`${pathname}${newQuery}`, { scroll: false });
+  }, [searchParams, pathname, router]);
 
   // Active customer for editing
   const { data: editingCustomer } = useCustomer(editingCustomerId);

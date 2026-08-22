@@ -77,7 +77,7 @@ export function SearchInput({
         onKeyDown={handleKeyDown}
         placeholder={placeholder}
         aria-label="Search customers"
-        className="pl-9 pr-9 h-[36px] text-[14px] leading-[1.5] rounded-[6px] border border-[#D1D5DB] bg-white text-[#1A1D23] placeholder:text-[#9CA3AF] focus-visible:ring-[#16A34A] focus-visible:ring-1"
+        className="pl-9 pr-9 h-[36px] text-[14px] leading-[1.5] rounded-[6px] border border-[#D1D5DB] bg-white text-[#1A1D23] placeholder:text-[#9CA3AF] focus-visible:ring-1 focus-visible:ring-[#9CA3AF] focus-visible:border-[#9CA3AF] focus:border-[#9CA3AF] focus:ring-0 focus-visible:outline-none"
       />
       <div className="absolute right-2.5 top-1/2 -translate-y-1/2 flex items-center gap-1">
         {isDebouncing && (
